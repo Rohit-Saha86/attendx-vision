@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register Student</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/register">Register</a>
+            <a href="/students">Students</a>
+            <a href="/attendance">Attendance</a>
+        </nav>
+
+        <h1>Register Student</h1>
+
+        <p class="subtitle">
+            Add a new student to the attendance system
+        </p>
+
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% for category, message in messages %}
+
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endwith %}
+
+
+        <form method="POST">
+
+            <div class="form-group">
+
+                <label>
+                    Student ID
+                </label>
+
+                <input
+                    type="text"
+                    name="student_id"
+                    minlength="3"
+                    maxlength="50"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    maxlength="100"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    maxlength="100"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Department
+                </label>
+
+                <input
+                    type="text"
+                    name="department"
+                    maxlength="100"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="submit-button"
+            >
+                Register Student
+            </button>
+
+        </form>
+
+
+        <a href="/" class="back-link">
+            ← Back to Home
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

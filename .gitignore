@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment / secrets
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Face training data
+dataset/
+trainer/
+
+# Runtime recognition status
+recognition_status.json
+
+# Logs
+*.log
+
+# Local reports / exports
+*.csv
+
+# Python test cache
+.pytest_cache/
+.coverage
+htmlcov/

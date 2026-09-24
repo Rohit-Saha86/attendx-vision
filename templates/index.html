@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Face Attendance System</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/register">Register</a>
+            <a href="/students">Students</a>
+            <a href="/attendance">Attendance</a>
+            <a href="/reports">Reports</a>
+        </nav>
+
+        <h1>
+            Face Recognition Attendance System
+        </h1>
+
+        <p class="subtitle">
+            Smart attendance management using
+            facial recognition technology
+        </p>
+
+        <div class="buttons">
+
+            <a href="/register" class="button">
+                Register Student
+            </a>
+
+            <a href="/students" class="button">
+                View Students
+            </a>
+
+            <a href="/attendance" class="button">
+                View Attendance
+            </a>
+
+            <a
+                href="/start-recognition"
+                class="button success"
+            >
+                Start Face Recognition
+            </a>
+
+            <a
+                href="/dashboard"
+                class="button"
+            >
+                Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <!-- Navigation -->
+
+        <nav>
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/register">
+                Register
+            </a>
+
+            <a href="/students">
+                Students
+            </a>
+
+            <a href="/attendance">
+                Attendance
+            </a>
+
+            <a href="/reports">
+                Reports
+            </a>
+
+        </nav>
+
+
+        <!-- Header -->
+
+        <h1>
+            Attendance Dashboard
+        </h1>
+
+        <p class="subtitle">
+            Overview of students and attendance activity
+        </p>
+
+
+        <!-- Statistics -->
+
+        <div class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    {{ stats.total_students }}
+                </div>
+
+                <div class="stat-label">
+                    Total Students
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    {{ stats.today_attendance }}
+                </div>
+
+                <div class="stat-label">
+                    Present Today
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    {{ stats.total_attendance }}
+                </div>
+
+                <div class="stat-label">
+                    Total Attendance Records
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    {{ stats.attendance_percentage }}%
+                </div>
+
+                <div class="stat-label">
+                    Today's Attendance
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Charts -->
+
+        <div class="charts-grid">
+
+
+            <div class="chart-card">
+
+                <h2>
+                    Daily Attendance
+                </h2>
+
+                <canvas id="dailyAttendanceChart"></canvas>
+
+            </div>
+
+
+            <div class="chart-card">
+
+                <h2>
+                    Attendance by Department
+                </h2>
+
+                <canvas id="departmentChart"></canvas>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- Quick Actions -->
+
+        <h2 class="section-title">
+            Quick Actions
+        </h2>
+
+
+        <div class="buttons">
+
+            <a
+                href="/register"
+                class="button"
+            >
+                Register Student
+            </a>
+
+
+            <a
+                href="/students"
+                class="button"
+            >
+                View Students
+            </a>
+
+
+            <a
+                href="/attendance"
+                class="button"
+            >
+                View Attendance
+            </a>
+
+
+            <a
+                href="/reports"
+                class="button"
+            >
+                Attendance Reports
+            </a>
+
+
+            <a
+                href="/start-recognition"
+                class="button success"
+            >
+                Start Face Recognition
+            </a>
+
+        </div>
+
+
+        <a
+            href="/"
+            class="back-link"
+        >
+            ← Back to Home
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- Chart Configuration -->
+
+<script>
+
+    const dailyLabels = {{ daily_labels | tojson | safe }};
+    const dailyValues = {{ daily_values | tojson | safe }};
+
+    const departmentLabels = {{ department_labels | tojson | safe }};
+    const departmentValues = {{ department_values | tojson | safe }};
+
+    // ==========================================
+    // DAILY ATTENDANCE CHART
+    // ==========================================
+
+    new Chart(
+        document.getElementById(
+            "dailyAttendanceChart"
+        ),
+        {
+            type: "line",
+
+            data: {
+
+                labels: dailyLabels,
+
+                datasets: [
+
+                    {
+                        label: "Students Present",
+
+                        data: dailyValues,
+
+                        borderWidth: 2,
+
+                        tension: 0.3,
+
+                        fill: false
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+                            precision: 0
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // DEPARTMENT CHART
+    // ==========================================
+
+    new Chart(
+        document.getElementById(
+            "departmentChart"
+        ),
+        {
+            type: "bar",
+
+            data: {
+
+                labels: departmentLabels,
+
+                datasets: [
+
+                    {
+                        label: "Attendance Records",
+
+                        data: departmentValues,
+
+                        borderWidth: 1
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+                            precision: 0
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Attendance Reports</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+
+        <!-- Navigation -->
+
+        <nav>
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/register">
+                Register
+            </a>
+
+            <a href="/students">
+                Students
+            </a>
+
+            <a href="/attendance">
+                Attendance
+            </a>
+
+            <a href="/reports">
+                Reports
+            </a>
+
+        </nav>
+
+
+        <!-- Header -->
+
+        <h1>
+            Attendance Reports
+        </h1>
+
+        <p class="subtitle">
+            Analyze and export attendance records
+        </p>
+
+
+        <!-- Flash Messages -->
+
+        {% with messages =
+            get_flashed_messages(
+                with_categories=true
+            )
+        %}
+
+            {% for category, message in messages %}
+
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endwith %}
+
+
+        <!-- Filters -->
+
+        <form
+            method="GET"
+            action="/reports"
+            class="filter-form"
+        >
+
+            <div class="filter-group">
+
+                <label>
+                    Search Student
+                </label>
+
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Student ID or Name"
+                    value="{{ search }}"
+                >
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label>
+                    Attendance Date
+                </label>
+
+                <input
+                    type="date"
+                    name="date"
+                    value="{{ attendance_date }}"
+                >
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    Generate Report
+                </button>
+
+                <a
+                    href="/reports"
+                    class="button reset-button"
+                >
+                    Clear
+                </a>
+
+            </div>
+
+        </form>
+
+
+        <!-- Report Statistics -->
+
+        <div class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    {{ total_records }}
+                </div>
+
+                <div class="stat-label">
+                    Total Records
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-number">
+                    {{ present_count }}
+                </div>
+
+                <div class="stat-label">
+                    Present
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- Export -->
+
+        <div class="report-actions">
+
+            <a
+                href="{{ url_for(
+                    'export_attendance',
+                    search=search,
+                    date=attendance_date
+                ) }}"
+                class="button success"
+            >
+                Download CSV Report
+            </a>
+
+        </div>
+
+
+        <!-- Report Table -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Student ID</th>
+
+                        <th>Name</th>
+
+                        <th>Date</th>
+
+                        <th>Time</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% if attendance %}
+
+                        {% for record in attendance %}
+
+                        <tr>
+
+                            <td>
+                                {{ record.id }}
+                            </td>
+
+                            <td>
+                                {{ record.student_id }}
+                            </td>
+
+                            <td>
+                                {{ record.name }}
+                            </td>
+
+                            <td>
+                                {{ record.attendance_date }}
+                            </td>
+
+                            <td>
+                                {{ record.attendance_time }}
+                            </td>
+
+                            <td>
+
+                                <span class="status-present">
+                                    {{ record.status }}
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="no-records"
+                            >
+                                No attendance records found.
+                            </td>
+
+                        </tr>
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <a
+            href="/"
+            class="back-link"
+        >
+            ← Back to Home
+        </a>
+
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

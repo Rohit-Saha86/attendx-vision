@@ -1,0 +1,882 @@
+:root {
+    --cyan: #22d3ee;
+    --blue: #38bdf8;
+    --green: #34d399;
+    --red: #f43f5e;
+    --panel: rgba(15, 23, 42, 0.72);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+
+/* =========================
+   BACKGROUND
+========================= */
+
+.ambient {
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.ambient-one {
+    top: -200px;
+    left: -150px;
+    background: var(--cyan);
+}
+
+.ambient-two {
+    right: -200px;
+    bottom: -200px;
+    background: #6366f1;
+}
+
+
+/* =========================
+   GLASS
+========================= */
+
+.glass-panel {
+    border: 1px solid rgba(255,255,255,0.09);
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.35);
+}
+
+
+/* =========================
+   CAMERA
+========================= */
+
+.scanner {
+    position: relative;
+    width: 100%;
+    min-height: 560px;
+    overflow: hidden;
+
+    border-radius: 28px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(34,211,238,0.08),
+            transparent 50%
+        ),
+        #020617;
+
+    border: 1px solid rgba(34,211,238,0.25);
+}
+
+.scanner video {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    transform: scaleX(-1);
+}
+
+#faceMeshCanvas {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
+    transform: scaleX(-1);
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+.hud-layer {
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+}
+
+.scan-grid {
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(34,211,238,0.04) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(34,211,238,0.04) 1px,
+            transparent 1px
+        );
+
+    background-size: 40px 40px;
+
+    mask-image:
+        radial-gradient(
+            circle,
+            black 20%,
+            transparent 75%
+        );
+}
+
+
+/* =========================
+   CORNERS
+========================= */
+
+.corner {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+
+    border-color: var(--cyan);
+    border-style: solid;
+
+    opacity: 0.8;
+}
+
+.corner-tl {
+    top: 25px;
+    left: 25px;
+    border-width: 2px 0 0 2px;
+}
+
+.corner-tr {
+    top: 25px;
+    right: 25px;
+    border-width: 2px 2px 0 0;
+}
+
+.corner-bl {
+    bottom: 25px;
+    left: 25px;
+    border-width: 0 0 2px 2px;
+}
+
+.corner-br {
+    bottom: 25px;
+    right: 25px;
+    border-width: 0 2px 2px 0;
+}
+
+
+/* =========================
+   SCANNING RING
+========================= */
+
+.scan-ring {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 290px;
+    height: 360px;
+
+    transform: translate(-50%, -50%);
+
+    border: 2px solid rgba(34,211,238,0.65);
+
+    border-radius: 48%;
+
+    box-shadow:
+        0 0 25px rgba(34,211,238,0.25),
+        inset 0 0 25px rgba(34,211,238,0.08);
+
+    animation:
+        ringPulse 2.2s ease-in-out infinite,
+        ringRotate 8s linear infinite;
+}
+
+.scan-ring::before,
+.scan-ring::after {
+    content: "";
+
+    position: absolute;
+    inset: 12px;
+
+    border: 1px dashed rgba(34,211,238,0.3);
+
+    border-radius: inherit;
+}
+
+.scan-ring::after {
+    inset: -15px;
+
+    border-color: rgba(34,211,238,0.15);
+}
+
+.ring-core {
+    position: absolute;
+    inset: 20%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(34,211,238,0.10),
+            transparent 70%
+        );
+}
+
+.ring-sweep {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--cyan),
+        transparent
+    );
+
+    box-shadow:
+        0 0 15px var(--cyan);
+
+    animation: scanSweep 2.5s linear infinite;
+}
+
+
+/* =========================
+   SUCCESS
+========================= */
+
+.scanner-success .scan-ring {
+    border-color: var(--green);
+
+    box-shadow:
+        0 0 45px rgba(52,211,153,0.7),
+        inset 0 0 35px rgba(52,211,153,0.15);
+
+    animation: successRing 700ms ease-out forwards;
+}
+
+.scanner-success .ring-sweep {
+    background: var(--green);
+    box-shadow: 0 0 20px var(--green);
+}
+
+.scan-icon {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 84px;
+    height: 84px;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0);
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: rgba(16,185,129,0.9);
+
+    font-size: 42px;
+    font-weight: 900;
+
+    box-shadow:
+        0 0 50px rgba(52,211,153,0.75);
+}
+
+.scanner-success .scan-icon {
+    animation: checkPop 650ms cubic-bezier(.2,1.6,.4,1) forwards;
+}
+
+
+/* =========================
+   FAILURE
+========================= */
+
+.scanner-failure {
+    animation: scannerShake 450ms ease-in-out;
+}
+
+.scanner-failure .scan-ring {
+    border-color: var(--red);
+
+    box-shadow:
+        0 0 45px rgba(244,63,94,0.55),
+        inset 0 0 30px rgba(244,63,94,0.12);
+}
+
+.failure-card {
+    border: 1px solid rgba(244,63,94,0.35);
+
+    background:
+        rgba(127,29,29,0.25);
+
+    border-radius: 20px;
+    padding: 20px;
+
+    animation: slideIn 400ms ease-out;
+}
+
+.failure-icon {
+    display: grid;
+    place-items: center;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    background: rgba(244,63,94,0.2);
+    color: #fb7185;
+
+    font-weight: 900;
+}
+
+
+/* =========================
+   SUCCESS CARD
+========================= */
+
+.success-card {
+    border: 1px solid rgba(52,211,153,0.35);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(6,78,59,0.45),
+            rgba(15,23,42,0.8)
+        );
+
+    border-radius: 24px;
+
+    padding: 24px;
+
+    animation:
+        successCardIn
+        600ms
+        cubic-bezier(.2,.8,.2,1);
+}
+
+.success-icon {
+    display: grid;
+    place-items: center;
+
+    width: 60px;
+    height: 60px;
+
+    border-radius: 18px;
+
+    background: rgba(52,211,153,0.15);
+
+    color: var(--green);
+
+    font-size: 30px;
+    font-weight: 900;
+
+    box-shadow:
+        0 0 30px rgba(52,211,153,0.25);
+}
+
+.counter-box {
+    margin-top: 20px;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    background: rgba(2,6,23,0.55);
+}
+
+.streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 12px;
+
+    padding: 12px 15px;
+
+    border-radius: 16px;
+
+    background: rgba(251,146,60,0.08);
+    border: 1px solid rgba(251,146,60,0.18);
+}
+
+.streak-flame {
+    font-size: 30px;
+
+    animation:
+        flame 1.2s ease-in-out infinite alternate;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.action-button {
+    border-radius: 12px;
+
+    padding: 11px 17px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition:
+        transform 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+}
+
+.action-primary {
+    background: #0891b2;
+
+    box-shadow:
+        0 0 25px rgba(8,145,178,0.25);
+}
+
+.action-secondary {
+    background: rgba(255,255,255,0.08);
+
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px 12px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+.status-scanning {
+    color: var(--cyan);
+
+    background: rgba(34,211,238,0.08);
+}
+
+.status-success {
+    color: var(--green);
+
+    background: rgba(52,211,153,0.08);
+}
+
+.status-failure {
+    color: #fb7185;
+
+    background: rgba(244,63,94,0.08);
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+
+    box-shadow:
+        0 0 10px currentColor;
+
+    animation: statusPulse 1.2s infinite;
+}
+
+
+/* =========================
+   LIVENESS
+========================= */
+
+.liveness-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+.liveness-indicator span {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #64748b;
+}
+
+.liveness-valid {
+    color: var(--green);
+}
+
+.liveness-valid span {
+    background: var(--green);
+
+    box-shadow:
+        0 0 12px var(--green);
+}
+
+
+/* =========================
+   QUEUE
+========================= */
+
+.queue-count,
+.flagged-count {
+    display: grid;
+    place-items: center;
+
+    min-width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.08);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.flagged-count {
+    color: #fb7185;
+}
+
+
+/* =========================
+   LIGHT BOOST
+========================= */
+
+.light-boost {
+    position: fixed;
+    inset: 0;
+
+    z-index: 100;
+
+    display: grid;
+    place-items: center;
+
+    background: white;
+
+    color: #0f172a;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition:
+        opacity 350ms ease;
+}
+
+.light-boost.active {
+    opacity: 0.96;
+}
+
+.light-boost-content {
+    text-align: center;
+}
+
+.light-boost-content span {
+    font-size: 50px;
+}
+
+.light-boost-content p {
+    margin-top: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes ringPulse {
+    0%, 100% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.96);
+        opacity: 0.65;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.03);
+        opacity: 1;
+    }
+}
+
+@keyframes ringRotate {
+    from {
+        filter: hue-rotate(0deg);
+    }
+
+    to {
+        filter: hue-rotate(25deg);
+    }
+}
+
+@keyframes scanSweep {
+    0% {
+        top: 5%;
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 95%;
+        opacity: 0;
+    }
+}
+
+@keyframes checkPop {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            scale(0);
+    }
+
+    70% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.18);
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+    }
+}
+
+@keyframes successRing {
+    from {
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%)
+            scale(1.15);
+        opacity: 0;
+    }
+}
+
+@keyframes scannerShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-12px);
+    }
+
+    40% {
+        transform: translateX(12px);
+    }
+
+    60% {
+        transform: translateX(-8px);
+    }
+
+    80% {
+        transform: translateX(8px);
+    }
+}
+
+@keyframes successCardIn {
+    from {
+        opacity: 0;
+        transform:
+            translateX(40px)
+            scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateX(0)
+            scale(1);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes flame {
+    from {
+        transform:
+            translateY(2px)
+            scale(0.95)
+            rotate(-3deg);
+    }
+
+    to {
+        transform:
+            translateY(-3px)
+            scale(1.08)
+            rotate(3deg);
+    }
+}
+
+@keyframes statusPulse {
+    50% {
+        opacity: 0.35;
+    }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+    .scanner {
+        min-height: 450px;
+    }
+
+    .scan-ring {
+        width: 220px;
+        height: 290px;
+    }
+
+    .glass-panel {
+        padding: 18px;
+    }
+}
+/* ==========================================
+   MULTI SCAN TOGGLE
+   ========================================== */
+
+#multiScanToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+#multiScanToggle .toggle-track {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.35);
+    transition: 0.25s ease;
+}
+
+#multiScanToggle .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    transition: 0.25s ease;
+}
+
+#multiScanToggle[aria-pressed="true"] {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.7);
+}
+
+#multiScanToggle[aria-pressed="true"] .toggle-track {
+    background: rgba(16, 185, 129, 0.75);
+}
+
+#multiScanToggle[aria-pressed="true"] .toggle-thumb {
+    transform: translateX(20px);
+}
+
+/* ==========================================
+   CAMERA STANDBY
+   ========================================== */
+
+#scanner.camera-standby {
+    background: #000 !important;
+}
+
+#scanner.camera-standby #webcam,
+#scanner.camera-standby #faceMeshCanvas,
+#scanner.camera-standby #scanRing,
+#scanner.camera-standby #scanIcon {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#scanner.camera-standby {
+    box-shadow: none;
+}
