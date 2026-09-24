@@ -9,6 +9,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      FLASK_SECRET_KEY: test-secret-for-ci
+
     steps:
 
       - name: Checkout code
