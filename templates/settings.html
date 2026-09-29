@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+
+{% block title %}Settings | AttendX Vision{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block page_subtitle %}
+Configure attendance, recognition, and system preferences.
+{% endblock %}
+
+{% block top_action %}{% endblock %}
+
+{% block content %}
+
+<style>
+
+.settings-container {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.settings-card {
+    background: #111111;
+    border: 1px solid #303030;
+    border-radius: 14px;
+    padding: 30px;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.settings-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 21px;
+}
+
+.settings-header span {
+    color: #999999;
+    font-size: 18px;
+}
+
+.settings-description {
+    color: #888888;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.setting-row {
+    min-height: 70px;
+    padding: 18px 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #2c2c2c;
+    gap: 30px;
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-info h3 {
+    margin: 0 0 5px;
+    color: #eeeeee;
+    font-size: 16px;
+}
+
+.setting-info p {
+    margin: 0;
+    color: #888888;
+    font-size: 14px;
+}
+
+.settings-select,
+.settings-number,
+.settings-time {
+    height: 42px;
+    padding: 0 12px;
+
+    background: #181818;
+    color: #ffffff;
+
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.settings-select {
+    width: 190px;
+}
+
+.settings-number {
+    width: 90px;
+}
+
+.settings-time {
+    width: 130px;
+}
+
+.settings-select:focus,
+.settings-number:focus,
+.settings-time:focus {
+    outline: none;
+    border-color: #00c8ff;
+}
+
+
+/* Toggle */
+
+.switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    display: inline-block;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+
+    background: #333333;
+    border-radius: 30px;
+
+    cursor: pointer;
+}
+
+.slider:before {
+    content: "";
+
+    position: absolute;
+
+    width: 20px;
+    height: 20px;
+
+    left: 3px;
+    top: 3px;
+
+    background: #ffffff;
+    border-radius: 50%;
+
+    transition: 0.2s;
+}
+
+.switch input:checked + .slider {
+    background: #00a8e8;
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+
+/* Buttons */
+
+.settings-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 25px;
+}
+
+.save-btn {
+    height: 42px;
+    padding: 0 22px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #00a8e8;
+    color: #ffffff;
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reset-btn {
+    height: 42px;
+    padding: 0 22px;
+
+    border: 1px solid #444444;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #dddddd;
+
+    cursor: pointer;
+}
+
+.save-btn:hover {
+    background: #0095cc;
+}
+
+.reset-btn:hover {
+    background: #222222;
+}
+
+#saveMessage {
+    align-self: center;
+    color: #39d353;
+    font-size: 13px;
+}
+
+
+/* Light Mode */
+
+body.light-mode .settings-card {
+    background: #ffffff;
+    border-color: #d9d9d9;
+}
+
+body.light-mode .settings-header h2 {
+    color: #111827;
+}
+
+body.light-mode .setting-info h3 {
+    color: #111827;
+}
+
+body.light-mode .setting-info p,
+body.light-mode .settings-description {
+    color: #6b7280;
+}
+
+body.light-mode .setting-row {
+    border-color: #e5e7eb;
+}
+
+body.light-mode .settings-select,
+body.light-mode .settings-number,
+body.light-mode .settings-time {
+    background: #ffffff;
+    color: #111827;
+    border-color: #d1d5db;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .settings-card {
+        padding: 20px;
+    }
+
+    .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .settings-select,
+    .settings-number,
+    .settings-time {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<div class="settings-container">
+
+    <div class="settings-card">
+
+        <form method="POST" action="{{ url_for('settings') }}">
+
+        <div class="settings-actions">
+            <h2>Settings</h2>
+            <span>•••</span>
+        </div>
+
+        <div class="settings-description">
+            Configure attendance, recognition, and system preferences.
+        </div>
+
+
+        <!-- Attendance Mode -->
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Attendance mode</h3>
+
+                <p>
+                    Select how attendance should be recorded.
+                </p>
+
+            </div>
+
+            <select
+                id="attendanceMode"
+                name="attendance_mode"
+                class="settings-select"
+            >
+
+                <option value="entrance" {% if settings and settings.attendance_mode == 'entrance' %}selected{% endif %}>
+                Entrance only
+                </option>
+
+                <option value="automatic" {% if settings and settings.attendance_mode == 'automatic' %}selected{% endif %}>
+                    Automatic
+                </option>
+
+                <option value="manual" {% if settings and settings.attendance_mode == 'manual' %}selected{% endif %}>
+                    Manual confirmation
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Duplicate Protection -->
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Duplicate scan protection</h3>
+
+                <p>
+                    Prevent repeated attendance scans.
+                </p>
+
+            </div>
+
+            <select
+                id="duplicateCooldown"
+                name="duplicate_cooldown"
+                class="settings-select"
+>
+            >
+
+                <option value="30"
+                {% if settings and settings.duplicate_cooldown == 30 %}selected{% endif %}>
+                30 seconds
+                 </option>
+
+                <option value="60"
+                    {% if settings and settings.duplicate_cooldown == 60 %}selected{% endif %}>
+                    1 minute
+                </option>
+
+                <option value="300"
+                    {% if settings and settings.duplicate_cooldown == 300 %}selected{% endif %}>
+                    5 minutes
+                </option>
+
+                <option value="600"
+                    {% if settings and settings.duplicate_cooldown == 600 %}selected{% endif %}>
+                    10 minutes
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Recognition Sound -->
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Recognition sound</h3>
+
+                <p>
+                    Play a sound when a student is recognized.
+                </p>
+
+            </div>
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="recognitionSound"
+                    name="recognition_sound"
+                    {% if settings and settings.recognition_sound %}checked{% endif %}
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <!-- Unknown Face Alert -->
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Unknown face alerts</h3>
+
+                <p>
+                    Notify the administrator about unknown faces.
+                </p>
+
+            </div>
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="unknownFaceAlert"
+                    name="unknown_face_alert"
+                    {% if settings and settings.unknown_face_alert %}checked{% endif %}
+                >
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <!-- Dashboard Refresh -->
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Dashboard auto refresh</h3>
+
+                <p>
+                    Automatically refresh dashboard information.
+                </p>
+
+            </div>
+
+            <select
+                id="dashboardRefresh"
+                name="dashboard_refresh"
+                class="settings-select"
+            >
+
+                <option value="0" {% if settings and settings.dashboard_refresh == 0 %}selected{% endif %}>
+                    Off
+                </option>
+
+                <option value="30" {% if settings and settings.dashboard_refresh == 30 %}selected{% endif %}>
+                    30 seconds
+                </option>
+
+                <option value="60" {% if settings and settings.dashboard_refresh == 60 %}selected{% endif %}>
+                    1 minute
+                </option>
+
+                <option value="300" {% if settings and settings.dashboard_refresh == 300 %}selected{% endif %}>
+                    5 minutes
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Minimum Attendance -->
+
+        <div class="setting-row">
+
+            <div class="setting-info">
+
+                <h3>Minimum attendance</h3>
+
+                <p>
+                    Percentage required for exam eligibility.
+                </p>
+
+            </div>
+
+            <input
+            type="number"
+            id="minimumAttendance"
+            name="minimum_attendance"
+            class="settings-number"
+            value="{{ settings.minimum_attendance if settings else 75 }}"
+            min="1"
+            max="100"
+            >
+        </div>
+
+
+        <!-- Save -->
+
+        <div class="settings-actions">
+
+            <button
+                type="submit"
+                class="save-btn"
+            >
+                Save Settings
+            </button>
+
+            <button
+                type="button"
+                class="reset-btn"
+                onclick="resetSettings()"
+            >
+                Reset
+            </button>
+
+            <span id="saveMessage"></span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<script>
+
+function resetSettings() {
+
+    document.getElementById("attendanceMode").value = "entrance";
+
+    document.getElementById("duplicateCooldown").value = "30";
+
+    document.getElementById("recognitionSound").checked = true;
+
+    document.getElementById("unknownFaceAlert").checked = true;
+
+    document.getElementById("dashboardRefresh").value = "0";
+
+    document.getElementById("minimumAttendance").value = "75";
+
+}
+
+
+
+</script>
+
+{% endblock %}

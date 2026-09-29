@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance History | ATTENDX VISION</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #111111;
+            color: #eeeeee;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            height: 64px;
+            background: #181818;
+            border-bottom: 1px solid #303030;
+            display: flex;
+            align-items: center;
+            padding: 0 45px;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-right: 55px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: #999999;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 22px 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-links a.active {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+
+        /* =========================
+           CONTAINER
+        ========================= */
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 40px 30px 60px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 30px;
+            color: #ffffff;
+            margin-bottom: 7px;
+        }
+
+        .page-subtitle {
+            color: #888888;
+            font-size: 14px;
+        }
+
+        .export-button {
+            background: #ffffff;
+            color: #111111;
+            border: none;
+            border-radius: 8px;
+            padding: 11px 18px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .export-button:hover {
+            background: #dddddd;
+        }
+
+        /* =========================
+           SUMMARY CARDS
+        ========================= */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #1a1a1a;
+            border: 1px solid #303030;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .summary-label {
+            color: #888888;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           MONTH CONTROL
+        ========================= */
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .month-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .month-control label {
+            color: #888888;
+            font-size: 13px;
+        }
+
+        select {
+            background: #1a1a1a;
+            color: #eeeeee;
+            border: 1px solid #383838;
+            border-radius: 8px;
+            padding: 10px 35px 10px 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* =========================
+           CALENDAR
+        ========================= */
+
+        .calendar-card {
+            background: #1a1a1a;
+            border: 1px solid #303030;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .calendar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .calendar-month {
+            color: #999999;
+            font-size: 13px;
+        }
+
+        .weekdays,
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .weekday {
+            text-align: center;
+            color: #777777;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        .day {
+            min-height: 82px;
+            background: #151515;
+            border: 1px solid #292929;
+            border-radius: 9px;
+            padding: 10px;
+            position: relative;
+        }
+
+        .day.empty {
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .day-number {
+            font-size: 13px;
+            color: #bbbbbb;
+            margin-bottom: 8px;
+        }
+
+        .day.today {
+            border-color: #666666;
+        }
+
+        .day-status {
+            font-size: 11px;
+            padding: 5px 7px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .present {
+            background: #242424;
+            color: #ffffff;
+        }
+
+        .late {
+            background: #303030;
+            color: #eeeeee;
+        }
+
+        .absent {
+            background: #1d1d1d;
+            color: #777777;
+        }
+
+        /* =========================
+           LEGEND
+        ========================= */
+
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #303030;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #888888;
+            font-size: 12px;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #777777;
+        }
+
+        .legend-dot.present-dot {
+            background: #eeeeee;
+        }
+
+        .legend-dot.late-dot {
+            background: #999999;
+        }
+
+        .legend-dot.absent-dot {
+            background: #444444;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #777777;
+            padding: 35px 10px;
+        }
+
+        @media (max-width: 800px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                gap: 18px;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .day {
+                min-height: 65px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                height: auto;
+                padding: 18px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .nav-links {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-links a {
+                padding: 8px 0;
+                white-space: nowrap;
+            }
+
+            .container {
+                padding: 25px 15px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .calendar-card {
+                padding: 12px;
+                overflow-x: auto;
+            }
+
+            .weekdays,
+            .calendar-grid {
+                min-width: 650px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+            ATTENDX VISION
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('student_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('student_profile') }}">
+                My Profile
+            </a>
+
+            <a href="{{ url_for('student_attendance') }}"
+               class="active">
+                History
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="container">
+
+        <div class="page-header">
+
+            <div>
+                <h1 class="page-title">
+                    Attendance History
+                </h1>
+
+                <p class="page-subtitle">
+                    View your attendance records and monthly attendance summary.
+                </p>
+            </div>
+
+            <button class="export-button"
+                    onclick="exportAttendance()">
+                Export
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             SUMMARY
+        ========================= -->
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+                <div class="summary-label">
+                    Present
+                </div>
+
+                <div class="summary-value"
+                     id="presentCount">
+                    0
+                </div>
+            </div>
+
+
+            <div class="summary-card">
+                <div class="summary-label">
+                    Late
+                </div>
+
+                <div class="summary-value"
+                     id="lateCount">
+                    0
+                </div>
+            </div>
+
+
+            <div class="summary-card">
+                <div class="summary-label">
+                    Absent
+                </div>
+
+                <div class="summary-value"
+                     id="absentCount">
+                    0
+                </div>
+            </div>
+
+
+            <div class="summary-card">
+                <div class="summary-label">
+                    Month %
+                </div>
+
+                <div class="summary-value"
+                     id="monthPercentage">
+                    0%
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             MONTH
+        ========================= -->
+
+        <div class="controls">
+
+            <div class="month-control">
+
+                <label for="monthSelector">
+                    Month
+                </label>
+
+                <select id="monthSelector"
+                        onchange="renderCalendar()">
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             CALENDAR
+        ========================= -->
+
+        <div class="calendar-card">
+
+            <div class="calendar-header">
+
+                <div class="calendar-title">
+                    Calendar
+                </div>
+
+                <div class="calendar-month"
+                     id="calendarMonth">
+                </div>
+
+            </div>
+
+
+            <div class="weekdays">
+
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+
+            </div>
+
+
+            <div class="calendar-grid"
+                 id="calendarGrid">
+            </div>
+
+
+            <div class="legend">
+
+                <div class="legend-item">
+                    <span class="legend-dot present-dot"></span>
+                    Present
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-dot late-dot"></span>
+                    Late
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-dot absent-dot"></span>
+                    Absent
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        /*
+         * Python sends:
+         *
+         * {
+         *   date: "YYYY-MM-DD",
+         *   time: "HH:MM AM/PM",
+         *   status: "present"
+         * }
+         */
+
+        const attendanceRecords =
+            {{ attendance_records | tojson }};
+
+
+        /* =========================
+           MONTH SETUP
+        ========================= */
+
+        const monthSelector =
+            document.getElementById(
+                "monthSelector"
+            );
+
+
+        const today =
+            new Date();
+
+
+        const currentYear =
+            today.getFullYear();
+
+
+        const currentMonth =
+            today.getMonth();
+
+
+        const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ];
+
+
+        /*
+         * Create the last 12 months.
+         */
+
+        for (
+            let i = 0;
+            i < 12;
+            i++
+        ) {
+
+            const date =
+                new Date(
+                    currentYear,
+                    currentMonth - i,
+                    1
+                );
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, "0")}`;
+
+
+            option.textContent =
+                `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+
+
+            monthSelector.appendChild(
+                option
+            );
+        }
+
+
+        /* =========================
+           RECORD MAP
+        ========================= */
+
+        function getMonthRecords(
+            year,
+            month
+        ) {
+
+            const monthString =
+                `${year}-${String(
+                    month + 1
+                ).padStart(2, "0")}`;
+
+
+            return attendanceRecords.filter(
+                record => {
+
+                    return String(
+                        record.date || ""
+                    ).startsWith(
+                        monthString
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =========================
+           CALENDAR
+        ========================= */
+
+        function renderCalendar() {
+
+            const selected =
+                monthSelector.value.split("-");
+
+
+            const year =
+                parseInt(
+                    selected[0]
+                );
+
+
+            const month =
+                parseInt(
+                    selected[1]
+                ) - 1;
+
+
+            const grid =
+                document.getElementById(
+                    "calendarGrid"
+                );
+
+
+            grid.innerHTML = "";
+
+
+            document.getElementById(
+                "calendarMonth"
+            ).textContent =
+                `${monthNames[month]} ${year}`;
+
+
+            const records =
+                getMonthRecords(
+                    year,
+                    month
+                );
+
+
+            const recordMap = {};
+
+
+            records.forEach(
+                record => {
+
+                    recordMap[
+                        record.date
+                    ] = record;
+
+                }
+            );
+
+
+            /*
+             * First day of month.
+             */
+
+            const firstDay =
+                new Date(
+                    year,
+                    month,
+                    1
+                ).getDay();
+
+
+            /*
+             * Number of days.
+             */
+
+            const daysInMonth =
+                new Date(
+                    year,
+                    month + 1,
+                    0
+                ).getDate();
+
+
+            /*
+             * Empty cells before day 1.
+             */
+
+            for (
+                let i = 0;
+                i < firstDay;
+                i++
+            ) {
+
+                const empty =
+                    document.createElement(
+                        "div"
+                    );
+
+                empty.className =
+                    "day empty";
+
+                grid.appendChild(
+                    empty
+                );
+
+            }
+
+
+            let present =
+                0;
+
+            let late =
+                0;
+
+
+            /*
+             * Days.
+             */
+
+            for (
+                let day = 1;
+                day <= daysInMonth;
+                day++
+            ) {
+
+                const cell =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                cell.className =
+                    "day";
+
+
+                const dateString =
+                    `${year}-${String(
+                        month + 1
+                    ).padStart(2, "0")}-${String(
+                        day
+                    ).padStart(2, "0")}`;
+
+
+                if (
+                    year === currentYear &&
+                    month === currentMonth &&
+                    day === today.getDate()
+                ) {
+
+                    cell.classList.add(
+                        "today"
+                    );
+
+                }
+
+
+                const number =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                number.className =
+                    "day-number";
+
+
+                number.textContent =
+                    day;
+
+
+                cell.appendChild(
+                    number
+                );
+
+
+                const record =
+                    recordMap[
+                        dateString
+                    ];
+
+
+                if (record) {
+
+                    const status =
+                        String(
+                            record.status || ""
+                        ).toLowerCase();
+
+
+                    const statusElement =
+                        document.createElement(
+                            "span"
+                        );
+
+
+                    statusElement.className =
+                        "day-status";
+
+
+                    if (
+                        status === "present"
+                    ) {
+
+                        statusElement.classList.add(
+                            "present"
+                        );
+
+                        statusElement.textContent =
+                            "Present";
+
+                        present++;
+
+                    }
+
+                    else if (
+                        status === "late"
+                    ) {
+
+                        statusElement.classList.add(
+                            "late"
+                        );
+
+                        statusElement.textContent =
+                            "Late";
+
+                        late++;
+
+                    }
+
+                    else {
+
+                        statusElement.classList.add(
+                            "absent"
+                        );
+
+                        statusElement.textContent =
+                            "Absent";
+
+                    }
+
+
+                    cell.appendChild(
+                        statusElement
+                    );
+
+
+                    if (record.time) {
+
+                        const time =
+                            document.createElement(
+                                "div"
+                            );
+
+                        time.style.color =
+                            "#666666";
+
+                        time.style.fontSize =
+                            "10px";
+
+                        time.style.marginTop =
+                            "5px";
+
+                        time.textContent =
+                            record.time;
+
+                        cell.appendChild(
+                            time
+                        );
+
+                    }
+
+                }
+
+
+                grid.appendChild(
+                    cell
+                );
+
+            }
+
+
+            /*
+             * Summary.
+             */
+
+            const absent =
+                daysInMonth -
+                present -
+                late;
+
+
+            document.getElementById(
+                "presentCount"
+            ).textContent =
+                present;
+
+
+            document.getElementById(
+                "lateCount"
+            ).textContent =
+                late;
+
+
+            document.getElementById(
+                "absentCount"
+            ).textContent =
+                absent;
+
+
+            const attended =
+                present + late;
+
+
+            const percentage =
+                daysInMonth > 0
+                    ? Math.round(
+                        (
+                            attended /
+                            daysInMonth
+                        ) * 100
+                    )
+                    : 0;
+
+
+            document.getElementById(
+                "monthPercentage"
+            ).textContent =
+                `${percentage}%`;
+
+        }
+
+
+        /* =========================
+           EXPORT
+        ========================= */
+
+        function exportAttendance() {
+
+            const selected =
+                monthSelector.value;
+
+
+            const records =
+                attendanceRecords.filter(
+                    record =>
+                        String(
+                            record.date || ""
+                        ).startsWith(
+                            selected
+                        )
+                );
+
+
+            if (
+                records.length === 0
+            ) {
+
+                alert(
+                    "No attendance records found for this month."
+                );
+
+                return;
+
+            }
+
+
+            let csv =
+                "Date,Time,Status\n";
+
+
+            records.forEach(
+                record => {
+
+                    csv +=
+                        `"${record.date || ""}",` +
+                        `"${record.time || ""}",` +
+                        `"${record.status || ""}"\n`;
+
+                }
+            );
+
+
+            const blob =
+                new Blob(
+                    [csv],
+                    {
+                        type:
+                            "text/csv"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                url;
+
+
+            link.download =
+                "attendance_history.csv";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            document.body.removeChild(
+                link
+            );
+
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        }
+
+
+        /* =========================
+           START
+        ========================= */
+
+        renderCalendar();
+
+    </script>
+
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+</body>
+
+</html>

@@ -1,136 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Register Student</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <nav>
-            <a href="/">Home</a>
-            <a href="/register">Register</a>
-            <a href="/students">Students</a>
-            <a href="/attendance">Attendance</a>
-        </nav>
-
-        <h1>Register Student</h1>
-
-        <p class="subtitle">
-            Add a new student to the attendance system
-        </p>
-
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-
-            {% for category, message in messages %}
-
-                <div class="message {{ category }}">
-                    {{ message }}
-                </div>
-
-            {% endfor %}
-
-        {% endwith %}
-
-
-        <form method="POST">
-
-            <div class="form-group">
-
-                <label>
-                    Student ID
-                </label>
-
-                <input
-                    type="text"
-                    name="student_id"
-                    minlength="3"
-                    maxlength="50"
-                    required
-                >
-
+{% extends "base.html" %}
+{% block title %}Register Student | AttendX Vision{% endblock %}
+{% block page_title %}Register Student{% endblock %}
+{% block page_subtitle %}Create a student profile before face capture and attendance recognition.{% endblock %}
+{% block top_action %}<a class="ax-btn ax-btn-ghost" href="{{ url_for('students') }}">← Students</a>{% endblock %}
+{% block content %}
+<div class="ax-grid ax-grid-2">
+    <section class="ax-panel ax-panel-pad">
+        <div class="ax-section-head"><div><div class="ax-section-title">Student profile</div><div class="ax-section-sub">All fields below are used by the attendance system.</div></div></div>
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="ax-form-grid">
+                <div class="ax-field"><label class="ax-label" for="student_id">Student ID</label><input class="ax-input" id="student_id" name="student_id" required minlength="3" placeholder="e.g. STU001"></div>
+                <div class="ax-field"><label class="ax-label" for="name">Full name</label><input class="ax-input" id="name" name="name" required placeholder="e.g. Asha Sharma"></div>
+                <div class="ax-field"><label class="ax-label" for="email">Email</label><input class="ax-input" id="email" name="email" type="email" placeholder="student@example.com"></div>
+                <div class="ax-field"><label class="ax-label" for="department">Department</label><input class="ax-input" id="department" name="department" placeholder="e.g. IT"></div>
+                <div class="ax-field ax-field-full"><button class="ax-btn ax-btn-primary" type="submit">Create Student Profile</button></div>
             </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Full Name
-                </label>
-
-                <input
-                    type="text"
-                    name="name"
-                    maxlength="100"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    name="email"
-                    maxlength="100"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Department
-                </label>
-
-                <input
-                    type="text"
-                    name="department"
-                    maxlength="100"
-                >
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="submit-button"
-            >
-                Register Student
-            </button>
-
         </form>
+    </section>
 
-
-        <a href="/" class="back-link">
-            ← Back to Home
-        </a>
-
-    </div>
-
+    <aside class="ax-panel ax-panel-pad">
+        <div class="ax-section-head"><div><div class="ax-section-title">Registration flow</div><div class="ax-section-sub">Recommended sequence</div></div></div>
+        <div class="ax-statline">
+            <div class="ax-statline-row"><span>01 · Profile</span><span>Complete</span></div>
+            <div class="ax-statline-row"><span>02 · Face capture</span><span>Next</span></div>
+            <div class="ax-statline-row"><span>03 · Model training</span><span>After capture</span></div>
+            <div class="ax-statline-row"><span>04 · Recognition</span><span>Ready</span></div>
+        </div>
+        <div style="height:18px"></div>
+        <div class="ax-panel ax-panel-pad" style="background:rgba(34,211,238,.035)">
+            <div class="ax-section-title">Tip</div>
+            <div class="ax-section-sub" style="margin-top:7px">Use a unique Student ID. The server already validates duplicate IDs and missing names.</div>
+        </div>
+    </aside>
 </div>
-
-</body>
-
-</html>
+{% endblock %}

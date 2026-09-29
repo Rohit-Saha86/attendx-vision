@@ -1,3 +1,4 @@
+import os
 import mysql.connector
 from config import DB_CONFIG
 
@@ -185,22 +186,116 @@ def search_students(search=""):
 
 def delete_student(student_id):
 
-    connection = get_connection()
-    cursor = connection.cursor()
+    connection = None
+    cursor = None
 
-    cursor.execute(
-        """
-        DELETE FROM students
-        WHERE student_id = %s
-        """,
-        (student_id,)
-    )
+    try:
 
-    deleted = cursor.rowcount > 0
+        # ------------------------------------------
+        # DELETE FACE IMAGE FILES
+        # ------------------------------------------
 
-    connection.commit()
+        base_dir = os.path.dirname(
+            os.path.abspath(__file__)
+        )
 
-    cursor.close()
-    connection.close()
+        dataset_dir = os.path.join(
+            base_dir,
+            "dataset"
+        )
 
-    return deleted
+        deleted_face_files = 0
+
+        if os.path.exists(dataset_dir):
+
+            for filename in os.listdir(dataset_dir):
+
+                if (
+                    filename.startswith(
+                        f"User.{student_id}."
+                    )
+                    and
+                    filename.lower().endswith(".jpg")
+                ):
+
+                    filepath = os.path.join(
+                        dataset_dir,
+                        filename
+                    )
+
+                    try:
+
+                        os.remove(filepath)
+
+                        deleted_face_files += 1
+
+                    except OSError as error:
+
+                        print(
+                            "Face file deletion error:",
+                            error
+                        )
+
+
+        # ------------------------------------------
+        # DELETE DATABASE INFORMATION
+        # ------------------------------------------
+
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        # Delete attendance records
+        cursor.execute(
+            """
+            DELETE FROM attendance
+            WHERE student_id = %s
+            """,
+            (student_id,)
+        )
+
+        # Delete student login account
+        cursor.execute(
+            """
+            DELETE FROM student_accounts
+            WHERE student_id = %s
+            """,
+            (student_id,)
+        )
+
+        # Delete student information
+        cursor.execute(
+            """
+            DELETE FROM students
+            WHERE student_id = %s
+            """,
+            (student_id,)
+        )
+
+        deleted = cursor.rowcount > 0
+
+        connection.commit()
+
+        print(
+            f"Deleted student: {student_id}"
+        )
+
+        print(
+            f"Deleted face files: {deleted_face_files}"
+        )
+
+        return deleted
+
+    except Exception:
+
+        if connection:
+            connection.rollback()
+
+        raise
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()

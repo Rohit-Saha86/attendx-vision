@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Login | AttendX Vision</title>
+    <title>Admin Registration | AttendX Vision</title>
 
     <style>
         * {
@@ -49,15 +49,15 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.10);
         }
 
-        .login-card {
+        .register-card {
             width: 100%;
-            max-width: 470px;
+            max-width: 500px;
 
             background: white;
 
             border-radius: 24px;
 
-            padding: 48px 45px 42px;
+            padding: 45px 45px 40px;
 
             box-shadow:
                 0 18px 45px rgba(15, 23, 42, 0.12);
@@ -69,7 +69,7 @@
             width: 78px;
             height: 78px;
 
-            margin: 0 auto 22px;
+            margin: 0 auto 20px;
 
             border-radius: 50%;
 
@@ -83,19 +83,19 @@
         }
 
         h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 31px;
+            margin-bottom: 9px;
         }
 
         .subtitle {
             color: #64748b;
             font-size: 15px;
-            margin-bottom: 34px;
+            margin-bottom: 30px;
         }
 
         .form-group {
             text-align: left;
-            margin-bottom: 21px;
+            margin-bottom: 18px;
         }
 
         label {
@@ -109,8 +109,7 @@
 
         input {
             width: 100%;
-
-            height: 56px;
+            height: 54px;
 
             padding: 0 16px;
 
@@ -137,9 +136,8 @@
             background: white;
         }
 
-        .login-button {
+        .register-button {
             width: 100%;
-
             height: 58px;
 
             margin-top: 8px;
@@ -160,32 +158,32 @@
                 transform 0.2s ease;
         }
 
-        .login-button:hover {
+        .register-button:hover {
             background: #1d4ed8;
             transform: translateY(-1px);
         }
 
-        .register-text {
-            margin-top: 25px;
+        .login-text {
+            margin-top: 23px;
 
             font-size: 14px;
             color: #64748b;
         }
 
-        .register-text a {
+        .login-text a {
             color: #2563eb;
             font-weight: 600;
             text-decoration: none;
         }
 
-        .register-text a:hover {
+        .login-text a:hover {
             text-decoration: underline;
         }
 
         .home-link {
-            display: inline-block;
+            display: block;
 
-            margin-top: 18px;
+            margin-top: 15px;
 
             color: #64748b;
 
@@ -208,7 +206,7 @@
             color: #f8fafc;
         }
 
-        body.dark .login-card {
+        body.dark .register-card {
             background: #1e293b;
 
             box-shadow:
@@ -216,7 +214,7 @@
         }
 
         body.dark .subtitle,
-        body.dark .register-text {
+        body.dark .login-text {
             color: #94a3b8;
         }
 
@@ -257,56 +255,14 @@
                 right: 15px;
             }
 
-            .login-card {
-                padding: 40px 25px 35px;
+            .register-card {
+                padding: 38px 25px 32px;
             }
 
             h1 {
                 font-size: 28px;
             }
         }
-
-        .password-toggle {
-    color: #111827 !important;
-}
-
-body.dark .password-toggle {
-    color: #ffffff !important;
-}
-
-.forgot-password {
-    text-align: right;
-    margin-top: -8px;
-    margin-bottom: 20px;
-}
-
-.forgot-password {
-    width: 100%;
-    text-align: right;
-    margin-top: 12px;
-    margin-bottom: 20px;
-    clear: both;
-}
-
-.forgot-password a {
-    color: #60a5fa;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.forgot-password a:hover {
-    text-decoration: underline;
-}
-
-html[data-theme="light"] .forgot-password a {
-    color: #2563eb !important;
-}
-
-html[data-theme="dark"] .forgot-password a {
-    color: #60a5fa !important;
-}
-
     </style>
 </head>
 
@@ -320,98 +276,191 @@ html[data-theme="dark"] .forgot-password a {
     </button>
 
 
-    <div class="login-card">
+    <div class="register-card">
 
         <div class="icon">
             👨‍💼
         </div>
 
-        <h1>Admin Login</h1>
+        <h1>Admin Registration</h1>
 
         <p class="subtitle">
-            Sign in to manage AttendX Vision
+            Create an administrator account
         </p>
 
 
         <form method="POST">
 
-            <div class="form-group">
+    <!-- Admin Username -->
+    <div class="form-group">
 
-                <label for="username">
-                    Username
-                </label>
-
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter username"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-    <label for="password">
-        Password
-    </label>
-
-    <div style="position: relative;">
+        <label for="username">
+            Admin Username
+        </label>
 
         <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter password"
-            required
-            style="padding-right: 65px;"
-        >
-<button
-    type="button"
-    class="password-toggle"
-    onclick="togglePassword('password', this)"
-    style="
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-weight: 600;
-    "
->
-    Show
-</button>
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Enter admin username"
+            required>
 
     </div>
 
-</div>
 
+    <!-- Phone Number -->
+    <div class="form-group">
+
+        <label for="phone">
+            Phone Number
+        </label>
+
+        <div style="display: flex; gap: 8px;">
+
+            <span style="
+                display: flex;
+                align-items: center;
+                padding: 0 12px;
+                border-radius: 11px;
+                background: #f8fafc;
+                color: #172033;
+                border: 1px solid #cbd5e1;
+                font-size: 16px;
+            ">
+                +91
+            </span>
+
+            <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="Enter 10-digit phone number"
+                maxlength="10"
+                pattern="[0-9]{10}"
+                inputmode="numeric"
+                required>
+
+        </div>
+
+    </div>
+
+
+    <!-- Password -->
+    <div class="form-group">
+
+        <label for="password">
+            Password
+        </label>
+
+        <div style="position: relative;">
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter password"
+                minlength="8"
+                maxlength="11"
+                required
+                style="padding-right: 65px;">
 
             <button
-                type="submit"
-                class="login-button">
-                Admin Login
+                type="button"
+                onclick="togglePassword('password', this)"
+                style="
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: transparent;
+                    border: none;
+                    color: #2563eb;
+                    cursor: pointer;
+                    font-size: 12px;
+                ">
+                Show
             </button>
 
-        </form>
+        </div>
 
-        <div class="forgot-password">
-    <a href="{{ url_for('admin_forgot_password') }}">
-        Forgot Password?
-    </a>
-</div>
+        <div style="
+            margin-top: 8px;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        ">
+            <strong>
+                Password must contain:
+            </strong>
+            <br>
+            • 8–11 characters
+            <br>
+            • At least 1 alphabet
+            <br>
+            • At least 1 number
+            <br>
+            • At least 1 special character
+        </div>
+
+    </div>
 
 
-        <div class="register-text">
+    <!-- Confirm Password -->
+    <div class="form-group">
 
-            New administrator?
+        <label for="confirm_password">
+            Confirm Password
+        </label>
 
-            <a href="{{ url_for('admin_register') }}">
-                Register here
+        <div style="position: relative;">
+
+            <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                placeholder="Confirm password"
+                minlength="8"
+                maxlength="11"
+                required
+                style="padding-right: 65px;">
+
+            <button
+                type="button"
+                onclick="togglePassword('confirm_password', this)"
+                style="
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: transparent;
+                    border: none;
+                    color: #2563eb;
+                    cursor: pointer;
+                    font-size: 12px;
+                ">
+                Show
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <button
+        type="submit"
+        class="register-button">
+        Create Admin Account
+    </button>
+
+</form>
+
+
+        <div class="login-text">
+
+            Already have an account?
+
+            <a href="{{ url_for('login') }}">
+                Admin Login
             </a>
 
         </div>
@@ -471,9 +520,7 @@ html[data-theme="dark"] .forgot-password a {
             }
         };
 
-    </script>
-<script>
-function togglePassword(inputId, button) {
+        function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
 
     if (input.type === "password") {
@@ -484,6 +531,8 @@ function togglePassword(inputId, button) {
         button.textContent = "Show";
     }
 }
-</script>
+
+    </script>
+
 </body>
 </html>

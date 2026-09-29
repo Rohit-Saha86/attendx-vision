@@ -1,354 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Dashboard</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
-    <!-- Chart.js -->
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-</head>
-
-
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <!-- Navigation -->
-
-        <nav>
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/register">
-                Register
-            </a>
-
-            <a href="/students">
-                Students
-            </a>
-
-            <a href="/attendance">
-                Attendance
-            </a>
-
-            <a href="/reports">
-                Reports
-            </a>
-
-        </nav>
-
-
-        <!-- Header -->
-
-        <h1>
-            Attendance Dashboard
-        </h1>
-
-        <p class="subtitle">
-            Overview of students and attendance activity
-        </p>
-
-
-        <!-- Statistics -->
-
-        <div class="stats-grid">
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    {{ stats.total_students }}
-                </div>
-
-                <div class="stat-label">
-                    Total Students
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    {{ stats.today_attendance }}
-                </div>
-
-                <div class="stat-label">
-                    Present Today
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    {{ stats.total_attendance }}
-                </div>
-
-                <div class="stat-label">
-                    Total Attendance Records
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    {{ stats.attendance_percentage }}%
-                </div>
-
-                <div class="stat-label">
-                    Today's Attendance
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Charts -->
-
-        <div class="charts-grid">
-
-
-            <div class="chart-card">
-
-                <h2>
-                    Daily Attendance
-                </h2>
-
-                <canvas id="dailyAttendanceChart"></canvas>
-
-            </div>
-
-
-            <div class="chart-card">
-
-                <h2>
-                    Attendance by Department
-                </h2>
-
-                <canvas id="departmentChart"></canvas>
-
-            </div>
-
-
-        </div>
-
-
-        <!-- Quick Actions -->
-
-        <h2 class="section-title">
-            Quick Actions
-        </h2>
-
-
-        <div class="buttons">
-
-            <a
-                href="/register"
-                class="button"
-            >
-                Register Student
-            </a>
-
-
-            <a
-                href="/students"
-                class="button"
-            >
-                View Students
-            </a>
-
-
-            <a
-                href="/attendance"
-                class="button"
-            >
-                View Attendance
-            </a>
-
-
-            <a
-                href="/reports"
-                class="button"
-            >
-                Attendance Reports
-            </a>
-
-
-            <a
-                href="/start-recognition"
-                class="button success"
-            >
-                Start Face Recognition
-            </a>
-
-        </div>
-
-
-        <a
-            href="/"
-            class="back-link"
-        >
-            ← Back to Home
-        </a>
-
-    </div>
-
+{% extends "base.html" %}
+{% block title %}Dashboard | AttendX Vision{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}A live overview of students, attendance activity, and department trends.{% endblock %}
+{% block top_action %}
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+    <a class="ax-btn ax-btn-primary" href="{{ url_for('recognition') }}">▶ Start Face Recognition</a>
 </div>
-
-
-<!-- Chart Configuration -->
-
+{% endblock %}
+{% block content %}
+<div class="ax-grid ax-grid-4">
+    <section class="ax-panel ax-kpi"><div class="ax-kpi-top"><span class="ax-kpi-label">Total Students</span><span class="ax-kpi-icon">◉</span></div><div class="ax-kpi-value">{{ stats.get('total_students', 0) }}</div><div class="ax-kpi-foot">Registered in the system</div></section>
+    <section class="ax-panel ax-kpi"><div class="ax-kpi-top"><span class="ax-kpi-label">Present Today</span><span class="ax-kpi-icon">✓</span></div><div class="ax-kpi-value">{{ stats.get('today_attendance', 0) }}</div><div class="ax-kpi-foot">Confirmed attendance</div></section>
+    <section class="ax-panel ax-kpi"><div class="ax-kpi-top"><span class="ax-kpi-label">Attendance Rate</span><span class="ax-kpi-icon">%</span></div><div class="ax-kpi-value">{{ stats.get('attendance_percentage', 0) }}%</div><div class="ax-kpi-foot">Today's attendance</div></section>
+    <section class="ax-panel ax-kpi"><div class="ax-kpi-top"><span class="ax-kpi-label">Total Records</span><span class="ax-kpi-icon">▤</span></div><div class="ax-kpi-value">{{ stats.get('total_attendance', 0) }}</div><div class="ax-kpi-foot">Attendance entries</div></section>
+</div>
+<div style="height:16px"></div>
+<div class="ax-grid ax-grid-2">
+    <section class="ax-panel ax-panel-pad">
+        <div class="ax-section-head"><div><div class="ax-section-title">Attendance trend</div><div class="ax-section-sub">Daily attendance activity</div></div></div>
+        <div class="ax-chart"><canvas id="dailyChart"></canvas></div>
+    </section>
+    <section class="ax-panel ax-panel-pad">
+        <div class="ax-section-head"><div><div class="ax-section-title">Department activity</div><div class="ax-section-sub">Attendance by department</div></div></div>
+        <div class="ax-chart"><canvas id="departmentChart"></canvas></div>
+    </section>
+</div>
+<div style="height:16px"></div>
+<section class="ax-panel ax-panel-pad">
+    <div class="ax-section-head"><div><div class="ax-section-title">Quick actions</div><div class="ax-section-sub">Common admin tasks</div></div></div>
+    <div class="ax-grid ax-grid-4">
+        <a class="ax-panel ax-panel-pad" href="{{ url_for('recognition') }}"><div class="ax-section-title">Start recognition</div><div class="ax-section-sub">Open the camera and mark attendance</div></a>
+        <a class="ax-panel ax-panel-pad" href="{{ url_for('students') }}"><div class="ax-section-title">Manage students</div><div class="ax-section-sub">Search and remove profiles</div></a>
+        <a class="ax-panel ax-panel-pad" href="{{ url_for('attendance') }}"><div class="ax-section-title">View attendance</div><div class="ax-section-sub">Filter attendance records</div></a>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-
-    const dailyLabels = {{ daily_labels | tojson | safe }};
-    const dailyValues = {{ daily_values | tojson | safe }};
-
-    const departmentLabels = {{ department_labels | tojson | safe }};
-    const departmentValues = {{ department_values | tojson | safe }};
-
-    // ==========================================
-    // DAILY ATTENDANCE CHART
-    // ==========================================
-
-    new Chart(
-        document.getElementById(
-            "dailyAttendanceChart"
-        ),
-        {
-            type: "line",
-
-            data: {
-
-                labels: dailyLabels,
-
-                datasets: [
-
-                    {
-                        label: "Students Present",
-
-                        data: dailyValues,
-
-                        borderWidth: 2,
-
-                        tension: 0.3,
-
-                        fill: false
-                    }
-
-                ]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: false,
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-                            precision: 0
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-    );
-
-
-    // ==========================================
-    // DEPARTMENT CHART
-    // ==========================================
-
-    new Chart(
-        document.getElementById(
-            "departmentChart"
-        ),
-        {
-            type: "bar",
-
-            data: {
-
-                labels: departmentLabels,
-
-                datasets: [
-
-                    {
-                        label: "Attendance Records",
-
-                        data: departmentValues,
-
-                        borderWidth: 1
-                    }
-
-                ]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: false,
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-                            precision: 0
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-    );
-
+const dailyLabels = {{ daily_labels|tojson }};
+const dailyValues = {{ daily_values|tojson }};
+const departmentLabels = {{ department_labels|tojson }};
+const departmentValues = {{ department_values|tojson }};
+new Chart(document.getElementById('dailyChart'), {
+    type: 'line', data: { labels: dailyLabels, datasets: [{ label: 'Attendance', data: dailyValues, tension: .35, borderWidth: 2, pointRadius: 3 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}} }
+});
+new Chart(document.getElementById('departmentChart'), {
+    type: 'bar', data: { labels: departmentLabels, datasets: [{ label: 'Attendance', data: departmentValues, borderRadius:8 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{precision:0}}} }
+});
 </script>
+{% endblock %}
 
-</body>
 
-</html>

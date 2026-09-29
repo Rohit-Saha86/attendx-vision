@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Face Enrollment</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #05070b;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: min(950px, 94%);
+            background: #0d1117;
+            border: 1px solid #252b35;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #8d96a5;
+        }
+
+        .student-id {
+            color: #58a6ff;
+            font-weight: bold;
+        }
+
+        .camera-area {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        #video {
+            display: block;
+            width: 100%;
+            height: auto;
+            min-height: 420px;
+            object-fit: cover;
+            transform: scaleX(-1);
+            background: #000;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .face-box {
+            position: absolute;
+            width: 260px;
+            height: 320px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid #58a6ff;
+            border-radius: 25px;
+            box-shadow: 0 0 25px rgba(88,166,255,0.25);
+        }
+
+        .face-box::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            width: 40px;
+            height: 2px;
+            background: #58a6ff;
+            transform: translateX(-50%);
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            color: #8d96a5;
+            min-height: 24px;
+        }
+
+        .progress-wrapper {
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #c9d1d9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #21262d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progress {
+            height: 100%;
+            width: 0%;
+            background: #58a6ff;
+            transition: width 0.2s ease;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        button,
+        .back-button {
+            border: none;
+            border-radius: 10px;
+            padding: 13px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        #startButton {
+            background: #238636;
+            color: white;
+        }
+
+        #stopButton {
+            background: #da3633;
+            color: white;
+        }
+
+        .back-button {
+            background: #21262d;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .instruction {
+            text-align: center;
+            color: #8d96a5;
+            font-size: 14px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Face Enrollment</h1>
+
+        <p>
+            Register face samples for
+            <span class="student-id">{{ student_id }}</span>
+        </p>
+    </div>
+
+    <div class="camera-area">
+
+        <video
+            id="video"
+            autoplay
+            playsinline>
+        </video>
+
+        <div class="camera-overlay">
+            <div class="face-box"></div>
+        </div>
+
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="status" id="status">
+        Click "Start Camera" to begin.
+    </div>
+
+    <div class="progress-wrapper">
+
+        <div class="progress-info">
+            <span>Samples Captured</span>
+            <span>
+                <span id="sampleCount">0</span> / 30
+            </span>
+        </div>
+
+        <div class="progress-bar">
+            <div id="progress"></div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+
+        <button id="startButton">
+            Start Camera
+        </button>
+
+        <button id="stopButton" disabled>
+            Stop Camera
+        </button>
+
+        <a
+    href="{{ back_url }}"
+    class="back-button">
+    Back to Students
+</a>
+
+    </div>
+
+    <div class="instruction">
+        Keep your face inside the guide and look toward the camera.
+        <br>
+        Hold your position while the system registers your face.
+    </div>
+
+</div>
+
+<script>
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+
+const startButton = document.getElementById("startButton");
+const stopButton = document.getElementById("stopButton");
+
+const statusText = document.getElementById("status");
+const sampleCount = document.getElementById("sampleCount");
+const progress = document.getElementById("progress");
+
+const studentId = "{{ student_id }}";
+
+let stream = null;
+let capturing = false;
+
+
+let samples = 0;
+let captureTimer = null;
+
+const TOTAL_SAMPLES = 30;
+
+
+/* ================================
+   START CAMERA
+================================ */
+
+async function startCamera() {
+
+    if (capturing) {
+        return;
+    }
+
+    try {
+
+        statusText.textContent =
+            "Requesting camera permission...";
+
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: {
+                    ideal: 1280
+                },
+                height: {
+                    ideal: 720
+                },
+                facingMode: "user"
+            },
+            audio: false
+        });
+
+        video.srcObject = stream;
+
+        await video.play();
+
+        capturing = true;
+
+        startButton.disabled = true;
+        stopButton.disabled = false;
+
+        statusText.textContent =
+            "Camera started. Capturing face samples...";
+
+        startCapturing();
+
+    } catch (error) {
+        console.error(error);
+
+        statusText.textContent =
+            "Unable to access the camera. Please allow camera permission.";
+    }
+}
+
+
+/* ================================
+   STOP CAMERA
+================================ */
+
+function stopCamera() {
+
+    capturing = false;
+
+    if (captureTimer) {
+        clearTimeout(captureTimer);
+        captureTimer = null;
+    }
+
+    if (stream) {
+
+        stream.getTracks().forEach(
+            track => track.stop()
+        );
+
+        stream = null;
+    }
+
+    video.srcObject = null;
+
+    startButton.disabled = false;
+    stopButton.disabled = true;
+
+}
+
+
+/* ================================
+   CAPTURE LOOP
+================================ */
+
+function startCapturing() {
+
+    if (!capturing) {
+        return;
+    }
+
+    if (samples >= TOTAL_SAMPLES) {
+        finishEnrollment();
+        return;
+    }
+
+    captureFrame();
+}
+
+
+/* ================================
+   CAPTURE FRAME
+================================ */
+
+async function captureFrame() {
+
+    if (!capturing) {
+        return;
+    }
+
+    if (video.readyState < 2) {
+
+        captureTimer = setTimeout(
+            captureFrame,
+            100
+        );
+
+        return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext("2d");
+
+    /*
+       Do NOT mirror the saved image.
+       The browser preview is mirrored only for the user.
+    */
+
+    context.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const imageBlob =
+        await new Promise(resolve => {
+
+            canvas.toBlob(
+                resolve,
+                "image/jpeg",
+                0.85
+            );
+
+        });
+
+    if (!imageBlob) {
+
+        captureTimer = setTimeout(
+            captureFrame,
+            100
+        );
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `/capture-face/${encodeURIComponent(studentId)}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "image/jpeg"
+                },
+                body: imageBlob
+            }
+        );
+
+        const result = await response.json();
+
+                if (result.status === "duplicate") {
+
+    const progressInfo =
+        document.querySelector(".progress-info");
+
+    progressInfo.innerHTML = `
+        <span>Enrollment Status</span>
+        <span>Cancelled</span>
+    `;
+
+    progress.style.width = "0%";
+
+    statusText.textContent =
+        result.message ||
+        "Duplicate face detected. This face is already associated with an existing account.";
+
+    statusText.style.color = "#ff6b6b";
+
+    stopCamera();
+
+startButton.disabled = true;
+stopButton.disabled = true;
+
+return;
+}
+
+if (
+    result.status === "captured" ||
+            result.status === "complete"
+        ) {
+
+            samples = result.count;
+
+            sampleCount.textContent =
+                samples;
+
+            const percentage =
+                (samples / TOTAL_SAMPLES) * 100;
+
+            progress.style.width =
+                percentage + "%";
+
+            statusText.textContent =
+                result.message;
+
+        } else {
+
+            statusText.textContent =
+                result.message ||
+                "Move your face into the guide.";
+
+        }
+
+        if (samples >= TOTAL_SAMPLES) {
+
+            finishEnrollment();
+            return;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        statusText.textContent =
+            "Unable to send camera frame.";
+
+    }
+
+    captureTimer = setTimeout(
+        captureFrame,
+        100
+    );
+}
+
+
+/* ================================
+   FINISH
+================================ */
+
+function finishEnrollment() {
+
+    capturing = false;
+
+    if (captureTimer) {
+        clearTimeout(captureTimer);
+        captureTimer = null;
+    }
+
+    if (stream) {
+
+        stream.getTracks().forEach(
+            track => track.stop()
+        );
+
+        stream = null;
+    }
+
+    video.srcObject = null;
+
+    startButton.disabled = true;
+    stopButton.disabled = true;
+
+    statusText.textContent =
+        "Face enrollment completed successfully.";
+
+    progress.style.width = "100%";
+
+    setTimeout(() => {
+
+        window.location.href =
+            "{{ finish_url }}";
+
+    }, 1500);
+}
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+startButton.addEventListener(
+    "click",
+    startCamera
+);
+
+stopButton.addEventListener(
+    "click",
+    stopCamera
+);
+
+
+/* ================================
+   CLEANUP
+================================ */
+
+window.addEventListener(
+    "beforeunload",
+    stopCamera
+);
+
+</script>
+
+</body>
+</html>

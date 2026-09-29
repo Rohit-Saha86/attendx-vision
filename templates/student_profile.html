@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile | ATTENDX VISION</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #111111;
+            color: #eeeeee;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            height: 64px;
+            background: #181818;
+            border-bottom: 1px solid #303030;
+            display: flex;
+            align-items: center;
+            padding: 0 45px;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-right: 55px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: #999999;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 22px 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-links a.active {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+
+        /* =========================
+           PAGE
+        ========================= */
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 30px 60px;
+        }
+
+        .page-title {
+            font-size: 30px;
+            color: #ffffff;
+            margin-bottom: 7px;
+        }
+
+        .page-subtitle {
+            color: #888888;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        /* =========================
+           PROFILE CARD
+        ========================= */
+
+        .profile-card {
+            background: #1a1a1a;
+            border: 1px solid #303030;
+            border-radius: 14px;
+            padding: 28px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #303030;
+        }
+
+        .avatar {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: #292929;
+            color: #ffffff;
+            border: 1px solid #404040;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 30px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .profile-name {
+            font-size: 25px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .profile-id {
+            color: #888888;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .update-face {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            text-decoration: none;
+            color: #eeeeee;
+
+            border: 1px solid #444444;
+            border-radius: 8px;
+
+            padding: 9px 14px;
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .update-face:hover {
+            background: #252525;
+            border-color: #666666;
+        }
+
+        /* =========================
+           SECTION
+        ========================= */
+
+        .section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .section-title span {
+            color: #777777;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        /* =========================
+           DETAILS
+        ========================= */
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .detail {
+            background: #151515;
+            border: 1px solid #292929;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .label {
+            color: #777777;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 7px;
+        }
+
+        .value {
+            color: #eeeeee;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           CONTACT
+        ========================= */
+
+        .contact-list {
+            border-top: 1px solid #303030;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 17px 0;
+            border-bottom: 1px solid #303030;
+        }
+
+        .contact-label {
+            color: #bbbbbb;
+            font-size: 13px;
+        }
+
+        .contact-value {
+            min-width: 210px;
+            text-align: right;
+
+            background: #151515;
+            border: 1px solid #303030;
+            border-radius: 8px;
+
+            padding: 10px 13px;
+
+            color: #eeeeee;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           FACE ID
+        ========================= */
+
+        .face-section {
+            margin-top: 24px;
+
+            background: #151515;
+            border: 1px solid #303030;
+            border-radius: 10px;
+
+            padding: 18px;
+        }
+
+        .face-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .face-title {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .face-description {
+            color: #777777;
+            font-size: 12px;
+        }
+
+        .registered {
+            color: #eeeeee;
+            border: 1px solid #555555;
+            background: #202020;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .not-registered {
+            color: #999999;
+            border: 1px solid #444444;
+            background: #1b1b1b;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 750px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .brand {
+                margin-right: 25px;
+            }
+
+            .nav-links {
+                gap: 18px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .contact-value {
+                width: 100%;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                height: auto;
+                padding: 18px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .nav-links {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-links a {
+                padding: 8px 0;
+                white-space: nowrap;
+            }
+
+            .container {
+                padding: 28px 16px 50px;
+            }
+
+            .profile-header {
+                align-items: flex-start;
+            }
+
+            .avatar {
+                width: 65px;
+                height: 65px;
+                font-size: 25px;
+            }
+
+            .profile-name {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+            ATTENDX VISION
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('student_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('student_profile') }}"
+               class="active">
+                My Profile
+            </a>
+
+            <a href="{{ url_for('student_attendance') }}">
+                History
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="container">
+
+        <h1 class="page-title">
+            Profile
+        </h1>
+
+        <p class="page-subtitle">
+            Your student information and account details.
+        </p>
+
+
+        <div class="profile-card">
+
+            <!-- PROFILE HEADER -->
+
+            <div class="profile-header">
+
+                <div class="avatar">
+                    {{ student.name[0]|upper }}
+                </div>
+
+                <div>
+
+                    <div class="profile-name">
+                        {{ student.name }}
+                    </div>
+
+                    <div class="profile-id">
+                        Student ID: {{ student.student_id }}
+                    </div>
+
+                    <a
+                        href="{{ url_for('update_face_id', student_id=student.student_id) }}"
+                        class="update-face"
+                    >
+                        Update Face ID
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACADEMIC DETAILS -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Academic details
+                    <span>(read-only)</span>
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail">
+
+                        <div class="label">
+                            Student ID
+                        </div>
+
+                        <div class="value">
+                            {{ student.student_id }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <div class="label">
+                            Name
+                        </div>
+
+                        <div class="value">
+                            {{ student.name }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <div class="label">
+                            Department / Course
+                        </div>
+
+                        <div class="value">
+                            {{ student.department or "Not provided" }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <div class="label">
+                            Account
+                        </div>
+
+                        <div class="value">
+                            Student Account
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONTACT DETAILS -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Contact details
+                    <span>(registered information)</span>
+                </div>
+
+
+                <div class="contact-list">
+
+                    <div class="contact-row">
+
+                        <div class="contact-label">
+                            Mobile number
+                        </div>
+
+                        <div class="contact-value">
+                            {% if student.phone %}
+                                +91 {{ student.phone }}
+                            {% else %}
+                                Not provided
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+
+                    <div class="contact-row">
+
+                        <div class="contact-label">
+                            Email
+                        </div>
+
+                        <div class="contact-value">
+                            Not provided
+                        </div>
+
+                    </div>
+
+
+                    <div class="contact-row">
+
+                        <div class="contact-label">
+                            Parent / guardian contact
+                        </div>
+
+                        <div class="contact-value">
+                            Not provided
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FACE ID -->
+
+            <div class="face-section">
+
+                <div class="face-header">
+
+                    <div>
+
+                        <div class="face-title">
+                            Face ID
+                        </div>
+
+                        <div class="face-description">
+                            Your registered face can be updated whenever necessary.
+                        </div>
+
+                    </div>
+
+
+                    {% if face_registered is defined and face_registered %}
+
+                        <div class="registered">
+                            Registered
+                        </div>
+
+                    {% else %}
+
+                        <div class="not-registered">
+                            Not Registered
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+</body>
+
+</html>

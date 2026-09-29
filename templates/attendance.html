@@ -1,261 +1,630 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}Attendance | AttendX Vision{% endblock %}
 
-    <meta charset="UTF-8">
+{% block page_title %}Attendance{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block page_subtitle %}
+View and manage student attendance records.
+{% endblock %}
 
-    <title>Attendance Records</title>
+{% block top_action %}{% endblock %}
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+{% block content %}
 
-</head>
+<style>
 
+    /* ==========================================
+       ATTENDANCE PANEL
+       ========================================== */
 
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-
-        <!-- Navigation -->
-
-        <nav>
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/register">
-                Register
-            </a>
-
-            <a href="/students">
-                Students
-            </a>
-
-            <a href="/attendance">
-                Attendance
-            </a>
-
-        </nav>
+    .attendance-panel {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        background: #ffffff;
+        padding: 24px;
+        overflow-x: auto;
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease;
+    }
 
 
-        <!-- Header -->
+    /* ==========================================
+       DARK MODE
+       base.html uses body.light-mode for LIGHT.
+       Therefore anything without light-mode is dark.
+       ========================================== */
 
-        <h1>
-            Attendance Records
-        </h1>
-
-        <p class="subtitle">
-            Search and filter attendance history
-        </p>
-
-
-        <!-- Search & Filter -->
-
-        <form
-            method="GET"
-            action="/attendance"
-            class="filter-form"
-        >
+    body:not(.light-mode) .attendance-panel {
+        background: #111111;
+        border-color: #303030;
+    }
 
 
-            <div class="filter-group">
+    /* ==========================================
+       HEADER
+       ========================================== */
 
-                <label>
-                    Search Student
-                </label>
+    .attendance-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
 
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Student ID or Name"
-                    value="{{ search }}"
-                >
+    .attendance-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #252525;
+        margin: 0;
+    }
 
-            </div>
+    body:not(.light-mode) .attendance-title {
+        color: #f3f4f6;
+    }
 
 
-            <div class="filter-group">
+    /* ==========================================
+       FILTERS
+       ========================================== */
 
-                <label>
-                    Attendance Date
-                </label>
+    .attendance-filters {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+
+    /* DATE */
+
+    .attendance-date {
+        height: 44px;
+        padding: 0 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #222222;
+        font-size: 14px;
+        font-weight: 500;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .attendance-date:focus {
+        border-color: #2563eb;
+    }
+
+    body:not(.light-mode) .attendance-date {
+        background: #151515;
+        color: #f5f5f5;
+        border-color: #3a3a3a;
+    }
+
+
+    /* BRANCH SELECT */
+
+    .attendance-select {
+        height: 44px;
+        min-width: 150px;
+        padding: 0 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #222222;
+        font-size: 14px;
+        font-weight: 500;
+        outline: none;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    body:not(.light-mode) .attendance-select {
+        background: #151515;
+        color: #f5f5f5;
+        border-color: #3a3a3a;
+    }
+
+
+    /* EXPORT BUTTON */
+
+    .attendance-export {
+        height: 44px;
+        padding: 0 17px;
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #222222;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-sizing: border-box;
+        transition: 0.2s ease;
+    }
+
+    .attendance-export:hover {
+        background: #f3f4f6;
+    }
+
+    body:not(.light-mode) .attendance-export {
+        background: #151515;
+        color: #f5f5f5;
+        border-color: #3a3a3a;
+    }
+
+    body:not(.light-mode) .attendance-export:hover {
+        background: #222222;
+    }
+
+
+    /* ==========================================
+       TABLE
+       ========================================== */
+
+    .attendance-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 650px;
+    }
+
+
+    /* TABLE HEADER */
+
+    .attendance-table th {
+        text-align: left;
+        padding: 13px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #737373;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    body:not(.light-mode) .attendance-table th {
+        color: #a3a3a3;
+        border-bottom-color: #303030;
+    }
+
+
+    /* TABLE DATA */
+
+    .attendance-table td {
+        padding: 13px 12px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333333;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    body:not(.light-mode) .attendance-table td {
+        color: #e5e5e5;
+        border-bottom-color: #303030;
+    }
+
+
+    /* LAST ROW */
+
+    .attendance-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* HOVER */
+
+    .attendance-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    body:not(.light-mode) .attendance-table tbody tr:hover {
+        background: #181818;
+    }
+
+
+    /* ==========================================
+       STUDENT NAME
+       ========================================== */
+
+    .student-name {
+        font-weight: 650;
+        color: #252525;
+    }
+
+    body:not(.light-mode) .student-name {
+        color: #f1f1f1;
+    }
+
+
+    /* ==========================================
+       ROLL NUMBER
+       ========================================== */
+
+    .student-roll {
+        font-weight: 600;
+        color: #404040;
+    }
+
+    body:not(.light-mode) .student-roll {
+        color: #d4d4d4;
+    }
+
+
+    /* ==========================================
+       STATUS
+       ========================================== */
+
+    .attendance-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+
+    /* PRESENT */
+
+    .status-present {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    body:not(.light-mode) .status-present {
+        background: #063d17;
+        color: #22c55e;
+    }
+
+
+    /* ABSENT */
+
+    .status-absent {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    body:not(.light-mode) .status-absent {
+        background: #450a0a;
+        color: #f87171;
+    }
+
+
+    /* OTHER STATUS */
+
+    .status-other {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+
+    body:not(.light-mode) .status-other {
+        background: #292929;
+        color: #d1d5db;
+    }
+
+
+    /* ==========================================
+       EMPTY STATE
+       ========================================== */
+
+    .attendance-empty {
+        text-align: center;
+        padding: 45px 20px;
+        color: #737373;
+        font-size: 14px;
+    }
+
+    body:not(.light-mode) .attendance-empty {
+        color: #a3a3a3;
+    }
+
+
+    /* ==========================================
+       MOBILE
+       ========================================== */
+
+    @media (max-width: 700px) {
+
+        .attendance-panel {
+            padding: 18px;
+        }
+
+        .attendance-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .attendance-filters {
+            width: 100%;
+        }
+
+        .attendance-date,
+        .attendance-select,
+        .attendance-export {
+            flex: 1;
+        }
+
+    }
+
+</style>
+
+
+<section class="attendance-panel">
+
+    <!-- ==========================================
+         HEADER
+         ========================================== -->
+
+    <div class="attendance-header">
+
+        <h2 class="attendance-title">
+            Attendance log
+        </h2>
+
+
+        <div class="attendance-filters">
+
+            <!-- DATE -->
+
+            <form
+                method="GET"
+                action="{{ url_for('attendance') }}"
+                style="margin: 0;"
+            >
 
                 <input
                     type="date"
                     name="date"
+                    class="attendance-date"
                     value="{{ attendance_date }}"
+                    onchange="this.form.submit()"
                 >
 
-            </div>
+            </form>
 
 
-            <div class="filter-actions">
+            <!-- BRANCH -->
 
-                <button
-                    type="submit"
-                    class="button"
-                >
-                    Search
-                </button>
+            <select class="attendance-select">
 
+                <option>
+                    All branch
+                </option>
 
-                <a
-                    href="/attendance"
-                    class="button reset-button"
-                >
-                    Clear
-                </a>
-
-            </div>
+            </select>
 
 
-        </form>
+            <!-- EXPORT -->
 
+            <a
+                href="{{ url_for(
+                    'export_attendance',
+                    search=search,
+                    date=attendance_date
+                ) }}"
+                class="attendance-export"
+            >
 
-        <!-- Results Information -->
+                <span>⇩</span>
 
-        <div class="results-info">
+                <span>
+                    Export
+                </span>
 
-            Showing
-            <strong>{{ attendance|length }}</strong>
-            attendance record(s)
-
-            {% if search %}
-
-                for
-                <strong>"{{ search }}"</strong>
-
-            {% endif %}
-
-            {% if attendance_date %}
-
-                on
-                <strong>{{ attendance_date }}</strong>
-
-            {% endif %}
+            </a>
 
         </div>
-
-
-        <!-- Attendance Table -->
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>ID</th>
-
-                        <th>Student ID</th>
-
-                        <th>Name</th>
-
-                        <th>Date</th>
-
-                        <th>Time</th>
-
-                        <th>Status</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% if attendance %}
-
-                        {% for record in attendance %}
-
-                        <tr>
-
-                            <td>
-                                {{ record.id }}
-                            </td>
-
-                            <td>
-                                {{ record.student_id }}
-                            </td>
-
-                            <td>
-                                {{ record.name }}
-                            </td>
-
-                            <td>
-                                {{ record.attendance_date }}
-                            </td>
-
-                            <td>
-                                {{ record.attendance_time }}
-                            </td>
-
-                            <td>
-
-                                <span class="status-present">
-                                    {{ record.status }}
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    {% else %}
-
-                        <tr>
-
-                            <td
-                                colspan="6"
-                                class="no-records"
-                            >
-                                No attendance records found.
-                            </td>
-
-                        </tr>
-
-                    {% endif %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- Back -->
-
-        <a
-            href="/"
-            class="back-link"
-        >
-            ← Back to Home
-        </a>
-
 
     </div>
 
-</div>
 
-</body>
+    <!-- ==========================================
+         ATTENDANCE TABLE
+         ========================================== -->
 
-</html>
+    <div class="attendance-table-wrapper">
+
+        <table class="attendance-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Roll No
+                    </th>
+
+                    <th>
+                        Entry
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% if attendance %}
+
+                    {% for record in attendance %}
+
+                    <tr>
+
+                        <!-- STUDENT -->
+
+                        <td>
+
+                            <span class="student-name">
+                                {{ record["name"] }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- ROLL NO -->
+
+                        <td>
+
+                            <span class="student-roll">
+                                {{ record["student_id"] }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- ENTRY TIME -->
+
+                        <td>
+
+                            {% if record["attendance_time"] %}
+
+                                {% set total_seconds =
+                                    record["attendance_time"].total_seconds()
+                                %}
+
+                                {% set total_minutes =
+                                    (total_seconds // 60) | int
+                                %}
+
+                                {% set hour24 =
+                                    (total_minutes // 60) | int
+                                %}
+
+                                {% set minute =
+                                    (total_minutes % 60) | int
+                                %}
+
+
+                                {% if hour24 == 0 %}
+
+                                    {% set hour12 = 12 %}
+                                    {% set period = "AM" %}
+
+                                {% elif hour24 < 12 %}
+
+                                    {% set hour12 = hour24 %}
+                                    {% set period = "AM" %}
+
+                                {% elif hour24 == 12 %}
+
+                                    {% set hour12 = 12 %}
+                                    {% set period = "PM" %}
+
+                                {% else %}
+
+                                    {% set hour12 = hour24 - 12 %}
+                                    {% set period = "PM" %}
+
+                                {% endif %}
+
+
+                                {{ "%02d:%02d %s"|format(
+                                    hour12,
+                                    minute,
+                                    period
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            {% set status =
+                                record["status"]|default("Unknown")
+                            %}
+
+
+                            {% if status|lower == "present" %}
+
+                                <span
+                                    class="attendance-status status-present"
+                                >
+                                    Present
+                                </span>
+
+
+                            {% elif status|lower == "absent" %}
+
+                                <span
+                                    class="attendance-status status-absent"
+                                >
+                                    Absent
+                                </span>
+
+
+                            {% else %}
+
+                                <span
+                                    class="attendance-status status-other"
+                                >
+                                    {{ status }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="4">
+
+                            <div class="attendance-empty">
+
+                                No attendance records found.
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}

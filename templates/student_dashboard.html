@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | ATTENDX VISION</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #111111;
+            color: #eeeeee;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            height: 64px;
+            background: #181818;
+            border-bottom: 1px solid #303030;
+            display: flex;
+            align-items: center;
+            padding: 0 45px;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-right: 55px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: #a9a9a9;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 22px 0;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-links a.active {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+
+        /* =========================
+           PAGE
+        ========================= */
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 42px 30px 60px;
+        }
+
+        .welcome {
+            margin-bottom: 32px;
+        }
+
+        .welcome h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .welcome p {
+            color: #999999;
+            font-size: 15px;
+        }
+
+        /* =========================
+           STUDENT CARD
+        ========================= */
+
+        .student-card {
+            background: #1b1b1b;
+            border: 1px solid #303030;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 28px;
+        }
+
+        .student-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #292929;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            font-weight: bold;
+            color: #ffffff;
+            border: 1px solid #3b3b3b;
+        }
+
+        .student-name {
+            font-size: 21px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .student-id {
+            color: #999999;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .student-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 24px;
+            padding-top: 22px;
+            border-top: 1px solid #303030;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #777777;
+            margin-bottom: 6px;
+        }
+
+        .detail-value {
+            color: #eeeeee;
+            font-size: 14px;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1b1b1b;
+            border: 1px solid #303030;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: #888888;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .stat-sub {
+            color: #777777;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        /* =========================
+           TWO COLUMN
+        ========================= */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: #1b1b1b;
+            border: 1px solid #303030;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 17px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .view-link {
+            color: #aaaaaa;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .view-link:hover {
+            color: #ffffff;
+        }
+
+        /* =========================
+           TODAY
+        ========================= */
+
+        .today-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px;
+            background: #151515;
+            border: 1px solid #292929;
+            border-radius: 10px;
+        }
+
+        .status-label {
+            color: #888888;
+            font-size: 13px;
+        }
+
+        .status-value {
+            margin-top: 6px;
+            font-size: 17px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: #292929;
+            border: 1px solid #3b3b3b;
+            color: #eeeeee;
+            font-size: 12px;
+        }
+
+        /* =========================
+           HISTORY
+        ========================= */
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 15px;
+            background: #151515;
+            border: 1px solid #292929;
+            border-radius: 9px;
+        }
+
+        .history-date {
+            color: #dddddd;
+            font-size: 13px;
+        }
+
+        .history-time {
+            color: #777777;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .history-status {
+            color: #cccccc;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            color: #777777;
+            text-align: center;
+            padding: 25px 10px;
+            font-size: 13px;
+        }
+
+        /* =========================
+           ELIGIBILITY
+        ========================= */
+
+        .eligibility {
+            margin-top: 18px;
+            padding: 18px;
+            background: #151515;
+            border: 1px solid #292929;
+            border-radius: 10px;
+        }
+
+        .eligibility-title {
+            color: #888888;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .eligibility-value {
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .brand {
+                margin-right: 25px;
+            }
+
+            .nav-links {
+                gap: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .student-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                height: auto;
+                padding: 18px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .nav-links {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-links a {
+                padding: 8px 0;
+                white-space: nowrap;
+            }
+
+            .container {
+                padding: 30px 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+            ATTENDX VISION
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('student_dashboard') }}"
+               class="active">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('student_profile') }}">
+                My Profile
+            </a>
+
+            <a href="{{ url_for('student_attendance') }}">
+                History
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <main class="container">
+
+        <div class="welcome">
+
+            <h1>
+                Welcome, {{ student.name }}
+            </h1>
+
+            <p>
+                Here's an overview of your attendance and academic status.
+            </p>
+
+        </div>
+
+
+        <!-- STUDENT INFORMATION -->
+
+        <div class="student-card">
+
+            <div class="student-header">
+
+                <div class="avatar">
+                    {{ student.name[0]|upper }}
+                </div>
+
+                <div>
+
+                    <div class="student-name">
+                        {{ student.name }}
+                    </div>
+
+                    <div class="student-id">
+                        Student ID: {{ student.student_id }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="student-details">
+
+                <div>
+                    <div class="detail-label">
+                        Department / Course
+                    </div>
+
+                    <div class="detail-value">
+                        {{ student.department or "Not provided" }}
+                    </div>
+                </div>
+
+
+                <div>
+                    <div class="detail-label">
+                        Phone
+                    </div>
+
+                    <div class="detail-value">
+                        {{ student.phone or "Not provided" }}
+                    </div>
+                </div>
+
+
+                <div>
+                    <div class="detail-label">
+                        Attendance Requirement
+                    </div>
+
+                    <div class="detail-value">
+                        {{ minimum_attendance }}%
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ATTENDANCE STATISTICS -->
+
+        <div class="section-title">
+            Attendance Overview
+        </div>
+
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Attendance
+                </div>
+
+                <div class="stat-value">
+                    {{ attendance_percentage }}%
+                </div>
+
+                <div class="stat-sub">
+                    Overall attendance
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Present Days
+                </div>
+
+                <div class="stat-value">
+                    {{ present_days }}
+                </div>
+
+                <div class="stat-sub">
+                    Days present
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Working Days
+                </div>
+
+                <div class="stat-value">
+                    {{ working_days }}
+                </div>
+
+                <div class="stat-sub">
+                    Recorded working days
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Required
+                </div>
+
+                <div class="stat-value">
+                    {{ minimum_attendance }}%
+                </div>
+
+                <div class="stat-sub">
+                    Minimum attendance
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOWER SECTION -->
+
+        <div class="two-column">
+
+
+            <!-- TODAY -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Today's Attendance
+                    </div>
+
+                    <a href="{{ url_for('student_attendance') }}"
+                       class="view-link">
+                        View History
+                    </a>
+
+                </div>
+
+
+                <div class="today-status">
+
+                    <div>
+
+                        <div class="status-label">
+                            Status
+                        </div>
+
+                        <div class="status-value">
+                            {{ today_status }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="status-badge">
+
+                        {% if today_status|lower == "present" %}
+                            PRESENT
+                        {% elif today_status|lower == "late" %}
+                            LATE
+                        {% else %}
+                            ABSENT
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="eligibility">
+
+                    <div class="eligibility-title">
+                        Exam Eligibility
+                    </div>
+
+                    <div class="eligibility-value">
+
+                        {% if eligible_for_exams %}
+                            Eligible
+                        {% else %}
+                            Below Required Attendance
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RECENT HISTORY -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Recent Attendance
+                    </div>
+
+                    <a href="{{ url_for('student_attendance') }}"
+                       class="view-link">
+                        View All
+                    </a>
+
+                </div>
+
+
+                <div class="history-list">
+
+                    {% if recent_history %}
+
+                        {% for record in recent_history %}
+
+                            <div class="history-row">
+
+                                <div>
+
+                                    <div class="history-date">
+                                        {{ record.date }}
+                                    </div>
+
+                                    <div class="history-time">
+
+                                        {% if record.entry %}
+                                            {{ record.entry }}
+                                        {% else %}
+                                            No entry
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="history-status">
+                                    {{ record.status }}
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-state">
+                            No attendance records available.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+
+</body>
+
+</html>

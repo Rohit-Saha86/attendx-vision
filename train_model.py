@@ -3,8 +3,9 @@ import os
 import numpy as np
 
 
-DATASET_PATH = "dataset"
-TRAINER_PATH = "trainer"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_PATH = os.path.join(BASE_DIR, "dataset")
+TRAINER_PATH = os.path.join(BASE_DIR, "trainer")
 
 
 MODEL_PATH = os.path.join(

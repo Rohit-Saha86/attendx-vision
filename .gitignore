@@ -31,3 +31,10 @@ recognition_status.json
 .pytest_cache/
 .coverage
 htmlcov/
+# Local backup files
+app_backup.py
+recognition_frame.jpg
+templates_backup/
+
+# Old duplicate project copy
+Face_Attendance_System/

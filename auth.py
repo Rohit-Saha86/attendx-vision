@@ -47,3 +47,30 @@ def verify_admin(username, password):
         return admin
 
     return None
+def verify_student(student_id, password):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    cursor.execute(
+        """
+        SELECT
+            student_id,
+            password_hash
+        FROM student_accounts
+        WHERE student_id = %s
+        """,
+        (student_id,)
+    )
+
+    student = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    if student and check_password_hash(
+        student["password_hash"],
+        password
+    ):
+        return student
+
+    return None

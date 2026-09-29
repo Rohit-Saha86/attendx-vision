@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Face ID | ATTENDX VISION</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0d1117;
+            color: #f0f6fc;
+            min-height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 250px;
+            background: #11161d;
+            border-right: 1px solid #252c35;
+            padding: 25px 16px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .brand {
+            padding: 5px 12px 30px;
+        }
+
+        .brand h1 {
+            font-size: 20px;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .brand p {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #7d8590;
+            letter-spacing: 1px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 12px 10px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #8b949e;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background: #1b222c;
+            color: #ffffff;
+        }
+
+        .nav a.active {
+            background: #172331;
+            color: #38bdf8;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 30px 35px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #252c35;
+            padding-bottom: 22px;
+            margin-bottom: 30px;
+        }
+
+        .topbar h2 {
+            font-size: 25px;
+            font-weight: 600;
+        }
+
+        .topbar p {
+            color: #8b949e;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .student-mini {
+            text-align: right;
+        }
+
+        .student-mini strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .student-mini span {
+            color: #8b949e;
+            font-size: 12px;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .face-card {
+            background: linear-gradient(
+                135deg,
+                #111923,
+                #0f151c
+            );
+
+            border: 1px solid #29323d;
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 25px;
+        }
+
+        .face-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .face-title {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .face-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #102a22;
+            border: 1px solid #1d6b52;
+            font-size: 28px;
+        }
+
+        .face-title h3 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .face-title p {
+            color: #8b949e;
+            font-size: 13px;
+        }
+
+        .status {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .status.registered {
+            background: #123125;
+            color: #4ade80;
+            border: 1px solid #245c40;
+        }
+
+        .status.not-registered {
+            background: #332719;
+            color: #fbbf24;
+            border: 1px solid #69502a;
+        }
+
+        /* =========================
+           INFO GRID
+        ========================= */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        .info-box {
+            background: #0d131a;
+            border: 1px solid #252c35;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 9px;
+        }
+
+        .info-value {
+            font-size: 17px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .info-value.small {
+            font-size: 14px;
+        }
+
+        /* =========================
+           ACTION
+        ========================= */
+
+        .action-section {
+            margin-top: 28px;
+            padding-top: 25px;
+            border-top: 1px solid #252c35;
+        }
+
+        .action-section h4 {
+            font-size: 15px;
+            margin-bottom: 7px;
+        }
+
+        .action-section p {
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .action-button {
+            display: inline-block;
+            text-decoration: none;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .action-button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .registered-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #4ade80;
+            font-size: 13px;
+            padding: 11px 15px;
+            background: #10251c;
+            border: 1px solid #1f5139;
+            border-radius: 8px;
+        }
+
+        /* =========================
+           SECURITY INFO
+        ========================= */
+
+        .security-card {
+            background: #11161d;
+            border: 1px solid #252c35;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .security-card h3 {
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .security-list {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 12px;
+        }
+
+        .security-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px;
+            background: #0d131a;
+            border-radius: 8px;
+            color: #9ba4af;
+            font-size: 13px;
+        }
+
+        .security-item span {
+            color: #4ade80;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+                padding: 25px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #252c35;
+            }
+
+            .app {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .student-mini {
+                text-align: left;
+            }
+
+            .face-header {
+                flex-direction: column;
+            }
+
+            .security-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <h1>
+                ATTENDX <span>VISION</span>
+            </h1>
+
+            <p>
+                STUDENT PORTAL
+            </p>
+
+        </div>
+
+        <div class="nav-title">
+            Student
+        </div>
+
+        <nav class="nav">
+
+            <a href="{{ url_for('student_dashboard') }}">
+                ◈ &nbsp; My Attendance
+            </a>
+
+            <a href="{{ url_for('student_attendance') }}">
+                ▤ &nbsp; History
+            </a>
+
+            <a
+                href="{{ url_for('student_face_id') }}"
+                class="active"
+            >
+                ◉ &nbsp; My Face ID
+            </a>
+
+            <a href="{{ url_for('student_profile') }}">
+                ◎ &nbsp; Profile
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <div class="topbar">
+
+            <div>
+
+                <h2>
+                    My Face ID
+                </h2>
+
+                <p>
+                    Manage your biometric registration
+                </p>
+
+            </div>
+
+            <div class="student-mini">
+
+                <strong>
+                    {{ student.name }}
+                </strong>
+
+                <span>
+                    {{ student.student_id }}
+                    {% if student.department %}
+                        · {{ student.department }}
+                    {% endif %}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             FACE STATUS CARD
+        ========================= -->
+
+        <section class="face-card">
+
+            <div class="face-header">
+
+                <div class="face-title">
+
+                    <div class="face-icon">
+                        ◉
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Face Recognition ID
+                        </h3>
+
+                        <p>
+                            Your registered face is used
+                            for attendance verification.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                {% if face_registered %}
+
+                    <div class="status registered">
+                        ✓ {{ face_status }}
+                    </div>
+
+                {% else %}
+
+                    <div class="status not-registered">
+                        ! {{ face_status }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- INFORMATION -->
+
+            <div class="info-grid">
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Student ID
+                    </div>
+
+                    <div class="info-value small">
+                        {{ student.student_id }}
+                    </div>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Face Samples
+                    </div>
+
+                    <div class="info-value">
+                        {{ sample_count }}
+                    </div>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Registration Date
+                    </div>
+
+                    <div class="info-value small">
+
+                        {% if registration_date %}
+                            {{ registration_date }}
+                        {% else %}
+                            Not registered
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTION -->
+
+            <div class="action-section">
+
+                {% if face_registered %}
+
+                    <h4>
+                        Face ID is active
+                    </h4>
+
+                    <p>
+                        Your face is currently registered
+                        with ATTENDX VISION and can be used
+                        by the attendance recognition system.
+                    </p>
+
+                    <div class="registered-note">
+                        ✓ Face recognition ready
+                    </div>
+
+                    <br><br>
+
+                    <a
+    href="{{ url_for(
+        'update_face_id',
+        student_id=student.student_id
+    ) }}"
+    class="action-button"
+>
+    Update Face ID
+</a>
+
+                {% else %}
+
+                    <h4>
+                        Complete Face Registration
+                    </h4>
+
+                    <p>
+                        Your face has not been registered yet.
+                        Complete the face scan to enable
+                        biometric attendance.
+                    </p>
+
+                    <a
+                        href="{{ url_for(
+                            'face_enrollment',
+                            student_id=student.student_id
+                        ) }}"
+                        class="action-button"
+                    >
+                        Register Face
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             SECURITY CARD
+        ========================= -->
+
+        <section class="security-card">
+
+            <h3>
+                Face ID Information
+            </h3>
+
+            <div class="security-list">
+
+                <div class="security-item">
+                    <span>✓</span>
+                    Face data processed locally
+                </div>
+
+                <div class="security-item">
+                    <span>✓</span>
+                    Used for attendance verification
+                </div>
+
+                <div class="security-item">
+                    <span>✓</span>
+                    Multiple face samples stored
+                </div>
+
+                <div class="security-item">
+                    <span>✓</span>
+                    Student-specific face mapping
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

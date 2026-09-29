@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login | ATTENDX VISION</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f4f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111827;
+        }
+
+        .login-card {
+            width: 420px;
+            max-width: 92%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 38px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #2563eb;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            padding: 0 14px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+        .password-box {
+            position: relative;
+        }
+
+        .password-box input {
+            padding-right: 70px;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #2563eb;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-button {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .login-button:hover {
+            background: #1d4ed8;
+        }
+
+        .flash {
+            padding: 11px 13px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .flash.error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .flash.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .register {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .register a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register a:hover {
+            text-decoration: underline;
+        }
+
+        .home-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        /* =========================================
+   ATTENDX VISION DARK / LIGHT MODE
+   STUDENT LOGIN
+========================================= */
+
+/* DARK MODE */
+html[data-theme="dark"] body {
+    background: #0d1117 !important;
+    color: #f0f6fc !important;
+}
+
+html[data-theme="dark"] .login-card {
+    background: #161b22 !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html[data-theme="dark"] .logo {
+    color: #58a6ff !important;
+}
+
+html[data-theme="dark"] .subtitle,
+html[data-theme="dark"] .description,
+html[data-theme="dark"] .form-group label,
+html[data-theme="dark"] .register {
+    color: #8b949e !important;
+}
+
+html[data-theme="dark"] .form-group input {
+    background: #0d1117 !important;
+    color: #f0f6fc !important;
+    border-color: #30363d !important;
+}
+
+html[data-theme="dark"] .password-box {
+    background: #0d1117 !important;
+}
+
+html[data-theme="dark"] .home-link {
+    color: #8b949e !important;
+}
+
+
+/* LIGHT MODE */
+html[data-theme="light"] body {
+    background: #f4f7fb !important;
+    color: #111827 !important;
+}
+
+html[data-theme="light"] .login-card {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+    color: #111827 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="light"] .logo {
+    color: #2563eb !important;
+}
+
+html[data-theme="light"] .subtitle,
+html[data-theme="light"] .description,
+html[data-theme="light"] .form-group label,
+html[data-theme="light"] .register {
+    color: #6b7280 !important;
+}
+
+html[data-theme="light"] .form-group input {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+}
+
+html[data-theme="light"] .form-group input::placeholder {
+    color: #9ca3af !important;
+}
+
+html[data-theme="light"] .password-box {
+    background: #ffffff !important;
+}
+
+html[data-theme="light"] .show-password {
+    color: #2563eb !important;
+}
+
+html[data-theme="light"] .home-link {
+    color: #6b7280 !important;
+}
+
+html[data-theme="light"] .theme-toggle {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+}
+
+
+/* THEME BUTTON */
+.theme-toggle {
+    position: fixed !important;
+    right: 24px !important;
+    bottom: 24px !important;
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 50% !important;
+    border: 1px solid #30363d !important;
+    background: #161b22 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    cursor: pointer !important;
+    z-index: 99999 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+}
+.forgot-password {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    margin-bottom: 16px;
+}
+
+.forgot-password a {
+    color: #60a5fa;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+html[data-theme="light"] .forgot-password a {
+    color: #2563eb !important;
+}
+
+html[data-theme="dark"] .forgot-password a {
+    color: #60a5fa !important;
+}
+
+    </style>
+</head>
+
+<body>
+
+<div class="login-card">
+
+    <div class="logo">
+        <div class="logo-icon">A</div>
+        ATTENDX VISION
+    </div>
+
+    <div class="subtitle">
+        Student Attendance System
+    </div>
+
+    <h1>Student Login</h1>
+
+    <p class="description">
+        Login to access your student portal.
+    </p>
+
+
+    <!-- FLASH MESSAGES -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="flash {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- LOGIN FORM -->
+
+    <form
+        method="POST"
+        action="{{ url_for('student_login') }}"
+    >
+
+        <div class="form-group">
+
+            <label for="student_id">
+                Student ID
+            </label>
+
+            <input
+                type="text"
+                id="student_id"
+                name="student_id"
+                placeholder="Enter your Student ID"
+                autocomplete="username"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <div class="password-box">
+
+    <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Enter your password"
+        required
+    >
+
+    <button
+        type="button"
+        class="show-password"
+        onclick="togglePassword()"
+    >
+        Show
+    </button>
+
+</div>
+
+<div class="forgot-password">
+    <a href="{{ url_for('student_forgot_password') }}">
+        Forgot Password?
+    </a>
+</div>
+
+<button type="submit" class="login-button">
+    Student Login
+</button>
+
+    </form>
+
+
+    <div class="register">
+
+        New student?
+
+        <a href="{{ url_for('student_register') }}">
+            Register here
+        </a>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('home') }}"
+        class="home-link"
+    >
+        ← Back to Home
+    </a>
+
+</div>
+
+
+<script>
+
+function togglePassword() {
+
+    const password =
+        document.getElementById("password");
+
+    const button =
+        document.querySelector(".show-password");
+
+    if (password.type === "password") {
+
+        password.type = "text";
+        button.textContent = "Hide";
+
+    } else {
+
+        password.type = "password";
+        button.textContent = "Show";
+
+    }
+}
+
+</script>
+<script src="{{ url_for('static', filename='theme.js') }}"></script></body>
+</html>
+

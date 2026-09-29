@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>Student Registration | AttendX Vision</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #eef3f8;
+        color: #172033;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    .theme-toggle {
+        position: fixed;
+        top: 25px;
+        right: 30px;
+        padding: 11px 18px;
+        border: none;
+        border-radius: 10px;
+        background: white;
+        color: #172033;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 500px;
+        background: white;
+        border-radius: 24px;
+        padding: 42px 45px 38px;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+        text-align: center;
+    }
+
+    .icon {
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background: #e8f8ef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+    }
+
+    h1 {
+        font-size: 30px;
+        margin-bottom: 9px;
+    }
+
+    .subtitle {
+        color: #64748b;
+        font-size: 15px;
+        margin-bottom: 28px;
+    }
+
+    .form-group {
+        text-align: left;
+        margin-bottom: 17px;
+    }
+
+    label {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    input {
+        width: 100%;
+        height: 52px;
+        padding: 0 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 11px;
+        background: #f8fafc;
+        font-size: 16px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+        background: white;
+    }
+
+    .register-button {
+        width: 100%;
+        height: 56px;
+        margin-top: 8px;
+        border: none;
+        border-radius: 11px;
+        background: #16a34a;
+        color: white;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .register-button:hover {
+        background: #15803d;
+    }
+
+    .login-text {
+        margin-top: 22px;
+        font-size: 14px;
+        color: #64748b;
+    }
+
+    .login-text a,
+    .admin-link,
+    .home-link {
+        text-decoration: none;
+    }
+
+    .login-text a {
+        color: #15803d;
+        font-weight: 600;
+    }
+
+    .admin-link {
+        display: block;
+        margin-top: 12px;
+        color: #2563eb;
+        font-size: 14px;
+    }
+
+    .home-link {
+        display: block;
+        margin-top: 14px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .flash {
+        margin-bottom: 18px;
+        padding: 11px 14px;
+        border-radius: 9px;
+        font-size: 14px;
+        text-align: left;
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    body.dark {
+        background: #0f172a;
+        color: #f8fafc;
+    }
+
+    body.dark .register-card {
+        background: #1e293b;
+    }
+
+    body.dark .subtitle,
+    body.dark .login-text {
+        color: #94a3b8;
+    }
+
+    body.dark input {
+        background: #0f172a;
+        color: #f8fafc;
+        border-color: #475569;
+    }
+
+    body.dark .theme-toggle {
+        background: #1e293b;
+        color: #f8fafc;
+        border: 1px solid #334155;
+    }
+
+    body.dark .home-link {
+        color: #94a3b8;
+    }
+
+    @media (max-width: 550px) {
+        body {
+            padding: 25px 15px;
+        }
+
+        .theme-toggle {
+            top: 15px;
+            right: 15px;
+        }
+
+        .register-card {
+            padding: 35px 25px 30px;
+        }
+
+        h1 {
+            font-size: 27px;
+        }
+    }
+
+    /* Registration dropdown */
+.theme-select {
+    display: block !important;
+    width: 100% !important;
+    height: 50px !important;
+    padding: 0 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    outline: none !important;
+}
+
+/* Dark mode */
+body.dark .theme-select {
+    background: #0d1526 !important;
+    color: #ffffff !important;
+    border-color: #30363d !important;
+}
+
+/* Low-light mode */
+body.low-light .theme-select {
+    background: #151515 !important;
+    color: #ffffff !important;
+    border-color: #444444 !important;
+}
+
+/* Dropdown options */
+.theme-select option {
+    background: #ffffff;
+    color: #111827;
+}
+
+body.dark .theme-select option {
+    background: #0d1526;
+    color: #ffffff;
+}
+
+body.low-light .theme-select option {
+    background: #151515;
+    color: #ffffff;
+}
+</style>
+
+</head>
+
+<body>
+
+```
+<button
+    class="theme-toggle"
+    id="themeButton"
+    onclick="toggleTheme()">
+    🌙 Dark Mode
+</button>
+
+<div class="register-card">
+
+    <div class="icon">
+        👨‍🎓
+    </div>
+
+    <h1>Student Registration</h1>
+
+    <p class="subtitle">
+        Create your student account
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('student_register') }}">
+
+        <div class="form-group">
+            <label for="name">
+                Full Name
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Enter your full name"
+                required>
+        </div>
+
+        
+
+        <div class="form-group">
+    <label for="department">
+        Course 
+    </label>
+
+    <select
+    id="department"
+    name="department"
+    class="theme-select"
+    required>
+
+        <option value="" disabled selected>
+            Select your course
+        </option>
+
+        
+
+        <optgroup label="College">
+                    <!-- B.Tech -->
+            <option value="B.Tech - CSE">B.Tech - CSE</option>
+            <option value="B.Tech - IT">B.Tech - IT</option>
+            <option value="B.Tech - AI & ML">B.Tech - AI & ML</option>
+            <option value="B.Tech - AI & DS">B.Tech - AI & DS</option>
+            <option value="B.Tech - ECE">B.Tech - ECE</option>
+            <option value="B.Tech - EE">B.Tech - EE</option>
+            <option value="B.Tech - EEE">B.Tech - EEE</option>
+            <option value="B.Tech - ME">B.Tech - ME</option>
+            <option value="B.Tech - CE">B.Tech - CE</option>
+            <option value="B.Tech - Biotechnology">B.Tech - Biotechnology</option>
+
+            <!-- BCA -->
+            <option value="BCA">BCA</option>
+
+            <!-- B.Sc -->
+            <option value="B.Sc - Computer Science">B.Sc - Computer Science</option>
+            <option value="B.Sc - Information Technology">B.Sc - Information Technology</option>
+            <option value="B.Sc - Mathematics">B.Sc - Mathematics</option>
+            <option value="B.Sc - Physics">B.Sc - Physics</option>
+            <option value="B.Sc - Chemistry">B.Sc - Chemistry</option>
+            <option value="B.Sc - Biotechnology">B.Sc - Biotechnology</option>
+            <option value="B.Sc - Microbiology">B.Sc - Microbiology</option>
+            <option value="B.Sc - Statistics">B.Sc - Statistics</option>
+            <option value="B.Sc - Environmental Science">B.Sc - Environmental Science</option>
+
+            <!-- BBA -->
+            <option value="BBA">BBA</option>
+            <option value="BBA - Finance">BBA - Finance</option>
+            <option value="BBA - Marketing">BBA - Marketing</option>
+            <option value="BBA - Human Resource Management">BBA - Human Resource Management</option>
+
+            <!-- B.Com -->
+            <option value="B.Com">B.Com</option>
+            <option value="B.Com - Accounting & Finance">B.Com - Accounting & Finance</option>
+            <option value="B.Com - Computer Applications">B.Com - Computer Applications</option>
+
+            <!-- BA -->
+            <option value="BA - English">BA - English</option>
+            <option value="BA - Bengali">BA - Bengali</option>
+            <option value="BA - History">BA - History</option>
+            <option value="BA - Geography">BA - Geography</option>
+            <option value="BA - Political Science">BA - Political Science</option>
+            <option value="BA - Sociology">BA - Sociology</option>
+            <option value="BA - Economics">BA - Economics</option>
+            <option value="BA - Psychology">BA - Psychology</option>
+
+            <!-- MCA -->
+            <option value="MCA">MCA</option>
+
+            <!-- M.Sc -->
+            <option value="M.Sc - Computer Science">M.Sc - Computer Science</option>
+            <option value="M.Sc - Mathematics">M.Sc - Mathematics</option>
+            <option value="M.Sc - Physics">M.Sc - Physics</option>
+            <option value="M.Sc - Chemistry">M.Sc - Chemistry</option>
+
+            <!-- M.Tech -->
+            <option value="M.Tech - CSE">M.Tech - CSE</option>
+            <option value="M.Tech - IT">M.Tech - IT</option>
+            <option value="M.Tech - ECE">M.Tech - ECE</option>
+            <option value="M.Tech - Mechanical Engineering">M.Tech - Mechanical Engineering</option>
+            <option value="M.Tech - Civil Engineering">M.Tech - Civil Engineering</option>
+
+            <!-- MBA -->
+            <option value="MBA">MBA</option>
+            <option value="MBA - Finance">MBA - Finance</option>
+            <option value="MBA - Marketing">MBA - Marketing</option>
+            <option value="MBA - Human Resource Management">MBA - Human Resource Management</option>
+            <option value="MBA - Business Analytics">MBA - Business Analytics</option>
+            <option value="Other">Other</option>
+        </optgroup>
+
+    </select>
+</div>
+
+
+<div class="form-group">
+    <label for="phone">
+        Phone Number
+    </label>
+
+    <div style="display: flex; gap: 8px;">
+
+        <span style="
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border-radius: 8px;
+            background: #21262d;
+            color: #ffffff;
+            border: 1px solid #30363d;
+        ">
+            +91
+        </span>
+
+                <input
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="Enter 10-digit phone number"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            inputmode="numeric"
+            required>
+
+        
+
+    </div>
+</div>
+
+        <div class="form-group">
+    <label for="password">
+        Password
+    </label>
+
+    <div style="position: relative;">
+        <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Create a password"
+            minlength="8"
+            maxlength="11"
+            required
+            style="padding-right: 65px;">
+
+        <button
+            type="button"
+            onclick="togglePassword('password', this)"
+            style="
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: transparent;
+                border: none;
+                color: #58a6ff;
+                cursor: pointer;
+                font-size: 12px;
+            ">
+            Show
+        </button>
+    </div>
+
+    <div style="
+        margin-top: 8px;
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.6;
+    ">
+        <strong style="color: #c9d1d9;">
+            Password must contain:
+        </strong>
+        <br>
+        • 8–11 characters
+        <br>
+        • At least 1 alphabet
+        <br>
+        • At least 1 number
+        <br>
+        • At least 1 special character
+    </div>
+</div>
+
+
+<div class="form-group">
+    <label for="confirm_password">
+        Confirm Password
+    </label>
+
+    <input
+        type="password"
+        id="confirm_password"
+        name="confirm_password"
+        placeholder="Confirm your password"
+        minlength="8"
+        maxlength="11"
+        required>
+</div>
+        
+
+        <button
+            type="submit"
+            class="register-button">
+            Continue to Face Registration
+        </button>
+
+    </form>
+
+    <div class="login-text">
+        Already have an account?
+
+        <a href="{{ url_for('student_login') }}">
+            Student Login
+        </a>
+    </div>
+
+    <a
+    href="{{ url_for('student_login') }}"
+    class="admin-link">
+    Student Login
+</a>
+
+    <a
+        href="{{ url_for('home') }}"
+        class="home-link">
+        ← Back to Home
+    </a>
+
+</div>
+
+<script>
+    function toggleTheme() {
+
+        const button =
+            document.getElementById("themeButton");
+
+        document.body.classList.toggle("dark");
+
+        if (document.body.classList.contains("dark")) {
+
+            button.innerHTML = "☀️ Light Mode";
+
+            localStorage.setItem(
+                "authTheme",
+                "dark"
+            );
+
+        } else {
+
+            button.innerHTML = "🌙 Dark Mode";
+
+            localStorage.setItem(
+                "authTheme",
+                "light"
+            );
+        }
+    }
+
+    window.onload = function () {
+
+        const savedTheme =
+            localStorage.getItem("authTheme");
+
+        if (savedTheme === "dark") {
+
+            document.body.classList.add("dark");
+
+            document.getElementById(
+                "themeButton"
+            ).innerHTML = "☀️ Light Mode";
+        }
+    };
+</script>
+
+<script>
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+
+    if (input.type === "password") {
+        input.type = "text";
+        button.textContent = "Hide";
+    } else {
+        input.type = "password";
+        button.textContent = "Show";
+    }
+}
+</script>
+
+</body>
+</html>

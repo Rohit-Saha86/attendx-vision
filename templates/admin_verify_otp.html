@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verify OTP | ATTENDX VISION</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #0d1117;
+            color: #ffffff;
+            transition: 0.3s;
+        }
+
+        .otp-card {
+            width: 100%;
+            max-width: 430px;
+            padding: 35px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .description {
+            text-align: center;
+            color: #8b949e;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .phone-info {
+            text-align: center;
+            margin-bottom: 22px;
+            color: #60a5fa;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: #ffffff;
+            outline: none;
+            font-size: 22px;
+            text-align: center;
+            letter-spacing: 7px;
+            font-weight: 700;
+        }
+
+        input:focus {
+            border-color: #58a6ff;
+        }
+
+        input::placeholder {
+            color: #6e7681;
+            letter-spacing: 3px;
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .verify-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .verify-button:hover {
+            background: #1d4ed8;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .flash {
+            padding: 11px 12px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .flash.error {
+            background: rgba(248, 81, 73, 0.12);
+            color: #ff7b72;
+            border: 1px solid rgba(248, 81, 73, 0.25);
+        }
+
+        .flash.success {
+            background: rgba(46, 160, 67, 0.12);
+            color: #56d364;
+            border: 1px solid rgba(46, 160, 67, 0.25);
+        }
+
+        /* Light mode */
+
+        html[data-theme="light"] body {
+            background: #f3f6fa;
+            color: #111827;
+        }
+
+        html[data-theme="light"] .otp-card {
+            background: #ffffff;
+            border-color: #d1d5db;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        html[data-theme="light"] .subtitle,
+        html[data-theme="light"] .description {
+            color: #6b7280;
+        }
+
+        html[data-theme="light"] input {
+            background: #ffffff;
+            color: #111827;
+            border-color: #d1d5db;
+        }
+
+        html[data-theme="light"] input:focus {
+            border-color: #2563eb;
+        }
+
+        html[data-theme="light"] .phone-info {
+            color: #2563eb;
+        }
+
+        html[data-theme="light"] .back-link {
+            color: #2563eb;
+        }
+
+        /* Theme button */
+
+        .theme-toggle {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid #30363d;
+            background: #161b22;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 19px;
+            z-index: 9999;
+        }
+
+        html[data-theme="light"] .theme-toggle {
+            background: #ffffff;
+            color: #111827;
+            border-color: #d1d5db;
+        }
+      /* =========================
+   DARK / LIGHT MODE
+   ========================= */
+
+html[data-theme="dark"] body {
+    background: #0d1117;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .otp-card {
+    background: #161b22;
+    border-color: #30363d;
+}
+
+html[data-theme="dark"] .subtitle,
+html[data-theme="dark"] .description {
+    color: #8b949e;
+}
+
+html[data-theme="dark"] input {
+    background: #0d1117;
+    color: #ffffff;
+    border-color: #30363d;
+}
+
+html[data-theme="dark"] .phone-info {
+    color: #60a5fa;
+}
+
+html[data-theme="dark"] .back-link {
+    color: #60a5fa;
+}
+
+
+/* LIGHT MODE */
+
+html[data-theme="light"] body {
+    background: #f3f6fa;
+    color: #111827;
+}
+
+html[data-theme="light"] .otp-card {
+    background: #ffffff;
+    border-color: #d1d5db;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="light"] .subtitle,
+html[data-theme="light"] .description {
+    color: #6b7280;
+}
+
+html[data-theme="light"] input {
+    background: #ffffff;
+    color: #111827;
+    border-color: #d1d5db;
+}
+
+html[data-theme="light"] input:focus {
+    border-color: #2563eb;
+}
+
+html[data-theme="light"] .phone-info {
+    color: #2563eb;
+}
+
+html[data-theme="light"] .back-link {
+    color: #2563eb;
+}
+
+
+/* THEME TOGGLE */
+
+.theme-toggle {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #30363d;
+    background: #161b22;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 19px;
+    z-index: 9999;
+}
+
+html[data-theme="light"] .theme-toggle {
+    background: #ffffff;
+    color: #111827;
+    border-color: #d1d5db;
+}  
+    </style>
+</head>
+
+<body>
+
+    <div class="otp-card">
+
+        <div class="logo">
+            <div class="logo-icon">🔐</div>
+            <h1>ATTENDX VISION</h1>
+        </div>
+
+        <div class="subtitle">
+            Verify OTP
+        </div>
+
+        <div class="description">
+            Enter the 6-digit verification code generated for your
+            administrator password reset.
+        </div>
+
+        <div class="phone-info">
+            OTP sent to your registered phone
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('admin_verify_otp') }}">
+
+            <div class="form-group">
+                <label for="otp">Verification Code</label>
+
+                <input
+                    type="text"
+                    id="otp"
+                    name="otp"
+                    placeholder="6-digit OTP"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="verify-button">
+                Verify OTP
+            </button>
+
+        </form>
+
+        <a href="{{ url_for('admin_forgot_password') }}" class="back-link">
+            ← Request New OTP
+        </a>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+
+</body>
+</html>

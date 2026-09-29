@@ -22,6 +22,14 @@ const stopCameraButton = document.getElementById("stopCamera");
 const livenessIndicator = document.getElementById("livenessIndicator");
 
 const successCard = document.getElementById("successCard");
+const recognitionOverlay =
+    document.getElementById("recognitionOverlay");
+
+const recognitionOverlayName =
+    document.getElementById("recognitionOverlayName");
+
+const recognitionOverlayStatus =
+    document.getElementById("recognitionOverlayStatus");
 const welcomeName = document.getElementById("welcomeName");
 const attendanceStatus = document.getElementById("attendanceStatus");
 const attendanceCounter = document.getElementById("attendanceCounter");
@@ -976,6 +984,12 @@ function showSuccess(name) {
             "success-card-in"
         );
     }
+    const recognitionOverlay =
+    document.getElementById("recognitionOverlay");
+
+    if (recognitionOverlay) {
+        recognitionOverlay.classList.remove("show");
+    }
 
     if (
         multiScanEnabled &&
@@ -1208,6 +1222,121 @@ function detectLowLight() {
     }
 }
 
+let lastFrameSent = 0;
+
+async function sendRecognitionFrame() {
+
+    if (
+        !webcam ||
+        !webcam.videoWidth ||
+        !webcam.videoHeight
+    ) {
+        return;
+    }
+
+    const now =
+        Date.now();
+
+    // Send at most one frame every 500 ms.
+    if (
+        now - lastFrameSent < 500
+    ) {
+        return;
+    }
+
+    lastFrameSent = now;
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+    canvas.width =
+        webcam.videoWidth;
+
+    canvas.height =
+        webcam.videoHeight;
+
+    const context =
+        canvas.getContext("2d");
+
+    context.drawImage(
+        webcam,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    canvas.toBlob(
+        async function(blob) {
+
+            if (!blob) {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+    "/recognition-frame",
+    {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "image/jpeg"
+        },
+        body: blob
+    }
+);
+
+const result = await response.json();
+
+if (
+    result.status === "recognized" &&
+    result.recognition_sound
+) {
+    const audioContext =
+        new (window.AudioContext ||
+            window.webkitAudioContext)();
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gainNode =
+        audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+
+    gainNode.gain.setValueAtTime(
+        0.15,
+        audioContext.currentTime
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+        audioContext.currentTime + 0.15
+    );
+}
+
+            } catch (error) {
+
+                console.error(
+                    "Frame upload error:",
+                    error
+                );
+
+            }
+
+        },
+        "image/jpeg",
+        0.75
+    );
+}
 
 // ==========================================
 // RENDER LOOP
@@ -1256,6 +1385,9 @@ async function renderLoop() {
 
                 processFaceResult(result);
 
+                if (livenessPassed) {
+                    sendRecognitionFrame();
+                }
             } catch (error) {
                 console.error(
                     "Face detection error:",
@@ -1296,7 +1428,20 @@ if (stopCameraButton) {
         }
     );
 }
-
+// Keyboard shortcut: press S to stop the camera
+document.addEventListener(
+    "keydown",
+    function(event) {
+        if (
+            event.key.toLowerCase() === "s" &&
+            !event.ctrlKey &&
+            !event.altKey &&
+            !event.metaKey
+        ) {
+            stopCamera();
+        }
+    }
+);
 
 if (retryButton) {
     retryButton.addEventListener(
@@ -1384,9 +1529,12 @@ let lastRecognitionStatus = "";
 
 async function checkRecognitionStatus() {
     try {
-        const response = await fetch("/recognition-status", {
-            cache: "no-store"
-        });
+        const response = await fetch(
+            "/recognition-status",
+            {
+                cache: "no-store"
+            }
+        );
 
         if (!response.ok) {
             return;
@@ -1394,60 +1542,244 @@ async function checkRecognitionStatus() {
 
         const data = await response.json();
 
-        if (data.status !== "recognized") {
-            return;
-        }
-
         const recognitionKey =
+            data.status + "|" +
             data.student_id + "|" +
             data.name + "|" +
             data.attendance_marked;
 
-        // Do not show the same recognition repeatedly.
-        if (recognitionKey === lastRecognitionStatus) {
+        if (
+            recognitionKey ===
+            lastRecognitionStatus
+        ) {
             return;
         }
 
-        lastRecognitionStatus = recognitionKey;
+        lastRecognitionStatus =
+            recognitionKey;
 
-        if (data.name) {
 
-    console.log(
-        "MULTI SCAN DEBUG:",
-        multiScanToggle.getAttribute("aria-pressed"),
-        scanQueue
-    );
+        // ==========================================
+        // REGISTERED STUDENT
+        // ==========================================
 
-    showRealRecognition(
-        data.name,
-        data.student_id,
-        data.attendance_marked
-    );
+        if (
+            data.status === "recognized"
+            && data.name
+        ) {
 
-    const multiScanActive =
-        multiScanToggle &&
-        multiScanToggle.getAttribute(
-            "aria-pressed"
-        ) === "true";
+            showRealRecognition(
+                data.name,
+                data.student_id,
+                data.attendance_marked
+            );
 
-    if (
-        multiScanActive &&
-        scanQueue
-    ) {
-        addQueueItem(
-            data.name,
-            data.student_id,
-            data.attendance_marked
-        );
-    }
-}
+            return;
+        }
+
+
+        // ==========================================
+        // UNKNOWN / UNREGISTERED STUDENT
+        // ==========================================
+
+        if (
+            data.status === "unknown"
+        ) {
+
+            showUnknownRecognition();
+
+            return;
+        }
 
     } catch (error) {
+
         console.error(
             "Recognition status error:",
             error
         );
     }
+}
+
+function showUnknownRecognition() {
+
+    scanLocked = true;
+
+
+    if (scanner) {
+
+        scanner.classList.remove(
+            "scanner-success"
+        );
+
+        scanner.classList.add(
+            "scanner-failure"
+        );
+    }
+
+
+    if (scanRing) {
+
+        scanRing.classList.remove(
+            "success-ring"
+        );
+    }
+
+
+    if (scanIcon) {
+        scanIcon.textContent = "!";
+    }
+
+
+    setSystemStatus(
+        "NOT MATCHED",
+        "error"
+    );
+
+
+    // Big popup
+    const overlay =
+        document.getElementById(
+            "recognitionOverlay"
+        );
+
+    const overlayName =
+        document.getElementById(
+            "recognitionOverlayName"
+        );
+
+    const overlayStatus =
+        document.getElementById(
+            "recognitionOverlayStatus"
+        );
+
+    const overlayIcon =
+        overlay
+            ? overlay.querySelector(
+                ".recognition-overlay-icon"
+            )
+            : null;
+
+
+    if (overlayName) {
+
+        overlayName.textContent =
+            "NOT MATCHED";
+    }
+
+
+    if (overlayStatus) {
+
+        overlayStatus.textContent =
+            "Unknown Student • Not Registered";
+    }
+
+
+    if (overlayIcon) {
+
+        overlayIcon.textContent =
+            "!";
+    }
+
+
+    if (overlay) {
+
+        overlay.classList.add(
+            "show",
+            "unknown-result"
+        );
+    }
+
+
+    if (scannerMessage) {
+
+        scannerMessage.innerHTML =
+            '<span class="pulse-dot"></span> ' +
+            'Student not registered';
+    }
+
+
+    console.log(
+        "Unknown student detected."
+    );
+
+
+    // IMPORTANT:
+    // Do NOT call:
+    // saveSuccessfulScan()
+    // loadStatistics()
+    // mark_attendance()
+    //
+    // Therefore this result does NOT
+    // increase attendance.
+
+
+    setTimeout(
+        function() {
+
+            scanLocked = false;
+
+            livenessPassed = false;
+
+
+            if (scanner) {
+
+                scanner.classList.remove(
+                    "scanner-success",
+                    "scanner-failure"
+                );
+            }
+
+
+            if (scanRing) {
+
+                scanRing.classList.remove(
+                    "success-ring"
+                );
+            }
+
+
+            if (scanIcon) {
+
+                scanIcon.textContent =
+                    "✓";
+            }
+
+
+            if (overlay) {
+
+                ooverlay.classList.remove(
+                    "show",
+                    "unknown-result"
+                );
+            }
+
+
+            if (overlayIcon) {
+
+                overlayIcon.textContent =
+                    "✓";
+            }
+
+
+            setLiveness(false);
+
+
+            setSystemStatus(
+                "SCANNING",
+                "scanning"
+            );
+
+
+            if (scannerMessage) {
+
+                scannerMessage.innerHTML =
+                    '<span class="pulse-dot"></span> ' +
+                    'Searching for face...';
+            }
+
+        },
+        3000
+    );
 }
 
 
@@ -1456,8 +1788,61 @@ function showRealRecognition(
     studentId,
     attendanceMarked
 ) {
+    const recognitionOverlay =
+        document.getElementById(
+            "recognitionOverlay"
+        );
+
+    const recognitionOverlayName =
+        document.getElementById(
+            "recognitionOverlayName"
+        );
+
+    const recognitionOverlayStatus =
+        document.getElementById(
+            "recognitionOverlayStatus"
+        );
+
+    if (recognitionOverlayName) {
+        recognitionOverlayName.textContent =
+            "YOU ARE PRESENT";
+    }
+
+    if (recognitionOverlayStatus) {
+        recognitionOverlayStatus.textContent =
+            attendanceMarked
+                ? "Welcome, " + name + " • Attendance marked successfully"
+                : "Welcome, " + name + " • Attendance already marked today";
+    }
+
+    if (recognitionOverlay) {
+        recognitionOverlay.classList.add("show");
+    }
     scanLocked = true;
 
+    const overlay =
+        document.getElementById(
+            "recognitionOverlay"
+        );
+
+    const overlayName =
+        document.getElementById(
+            "recognitionOverlayName"
+        );
+
+    const overlayStatus =
+        document.getElementById(
+            "recognitionOverlayStatus"
+        );
+
+    const overlayIcon =
+        overlay
+            ? overlay.querySelector(
+                ".recognition-overlay-icon"
+            )
+            : null;
+
+    // Scanner success state
     if (scanner) {
         scanner.classList.remove(
             "scanner-failure"
@@ -1483,6 +1868,7 @@ function showRealRecognition(
         "success"
     );
 
+    // Update success card
     if (welcomeName) {
         welcomeName.textContent =
             "Welcome, " + name;
@@ -1508,23 +1894,47 @@ function showRealRecognition(
         );
     }
 
+    // Full success popup
+    if (overlayName) {
+        overlayName.textContent =
+            "Welcome, " + name;
+    }
+
+    if (overlayStatus) {
+        if (attendanceMarked) {
+            overlayStatus.textContent =
+                "Attendance marked successfully";
+        } else {
+            overlayStatus.textContent =
+                "Attendance already marked today";
+        }
+    }
+
+    if (overlayIcon) {
+        overlayIcon.textContent = "✓";
+    }
+
+    if (overlay) {
+        overlay.classList.add("show");
+        overlay.classList.remove(
+            "unknown-result"
+        );
+    }
+
     loadStatistics(studentId);
 
     console.log(
-        "Real recognition:",
+        "SUCCESS MARK SHOWN:",
         name,
         studentId,
         attendanceMarked
     );
 
-
-    // AUTO RESET FOR NEXT STUDENT
-
+    // Reset after 3 seconds
     setTimeout(
         function() {
 
             scanLocked = false;
-
             livenessPassed = false;
 
             if (scanner) {
@@ -1554,6 +1964,12 @@ function showRealRecognition(
                 );
             }
 
+            if (overlay) {
+                overlay.classList.remove(
+                    "show"
+                );
+            }
+
             setLiveness(false);
 
             setSystemStatus(
@@ -1577,3 +1993,37 @@ setInterval(
     checkRecognitionStatus,
     1000
 );
+
+// ==========================================
+// UNKNOWN STUDENT VISUAL STYLE
+// ==========================================
+
+(function () {
+
+    const style =
+        document.createElement("style");
+
+    style.textContent = `
+        #recognitionOverlay.unknown-result
+        .recognition-overlay-icon {
+            color: #fb7185 !important;
+            border-color: #fb7185 !important;
+            background: rgba(127, 29, 29, 0.18) !important;
+            box-shadow:
+                0 0 30px rgba(244, 63, 94, 0.35) !important;
+        }
+
+        #recognitionOverlay.unknown-result
+        .recognition-overlay-name {
+            color: #fb7185 !important;
+        }
+
+        #recognitionOverlay.unknown-result
+        .recognition-overlay-status {
+            color: #fecdd3 !important;
+        }
+    `;
+
+    document.head.appendChild(style);
+
+})();

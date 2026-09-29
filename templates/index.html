@@ -1,78 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Face Attendance System</title>
+    <title>AttendX Vision | Face Attendance System</title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #eef2f7;
+            color: #111827;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 25px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            text-align: center;
+        }
+
+        /* Theme Button */
+        .theme-toggle {
+            position: fixed;
+            top: 25px;
+            right: 30px;
+            border: none;
+            background: #ffffff;
+            color: #111827;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        .logo {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 44px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 19px;
+            color: #64748b;
+            margin-bottom: 55px;
+        }
+
+        .role-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .role-card {
+            width: 450px;
+            min-height: 380px;
+            padding: 50px 40px;
+
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.12);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .role-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+
+        .role-card h2 {
+            font-size: 30px;
+            margin-bottom: 14px;
+        }
+
+        .role-card p {
+            max-width: 330px;
+            color: #64748b;
+            font-size: 17px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            width: 280px;
+            min-height: 58px;
+
+            border-radius: 12px;
+            text-decoration: none;
+
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+
+            transition: 0.2s ease;
+        }
+
+        .admin-button {
+            background: #2563eb;
+        }
+
+        .admin-button:hover {
+            background: #1d4ed8;
+            transform: scale(1.02);
+        }
+
+        .student-button {
+            background: #16a34a;
+        }
+
+        .student-button:hover {
+            background: #15803d;
+            transform: scale(1.02);
+        }
+
+        .footer {
+            margin-top: 50px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           DARK MODE
+           ========================= */
+
+        body.dark {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        body.dark .subtitle {
+            color: #94a3b8;
+        }
+
+        body.dark .role-card {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+        }
+
+        body.dark .role-card p {
+            color: #94a3b8;
+        }
+
+        body.dark .theme-toggle {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+        }
+
+
+        /* =========================
+           MOBILE
+           ========================= */
+
+        @media (max-width: 950px) {
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .role-card {
+                width: 100%;
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 30px 15px;
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+            }
+
+            .logo {
+                font-size: 52px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+                margin-bottom: 35px;
+            }
+
+            .role-card {
+                min-height: 330px;
+                padding: 40px 25px;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeButton">
+        🌙 Dark Mode
+    </button>
 
-    <div class="card">
+    <div class="container">
 
-        <nav>
-            <a href="/">Home</a>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/register">Register</a>
-            <a href="/students">Students</a>
-            <a href="/attendance">Attendance</a>
-            <a href="/reports">Reports</a>
-        </nav>
+        <div class="logo">📋</div>
 
-        <h1>
-            Face Recognition Attendance System
-        </h1>
+        <h1>AttendX Vision</h1>
 
         <p class="subtitle">
-            Smart attendance management using
-            facial recognition technology
+            Face Recognition Attendance Management System
         </p>
 
-        <div class="buttons">
 
-            <a href="/register" class="button">
-                Register Student
-            </a>
+        <div class="role-container">
 
-            <a href="/students" class="button">
-                View Students
-            </a>
+            <!-- ADMIN -->
+            <div class="role-card">
 
-            <a href="/attendance" class="button">
-                View Attendance
-            </a>
+                <div class="role-icon">👨‍💼</div>
 
-            <a
-                href="/start-recognition"
-                class="button success"
-            >
-                Start Face Recognition
-            </a>
+                <h2>Admin</h2>
 
-            <a
-                href="/dashboard"
-                class="button"
-            >
-                Dashboard
-            </a>
+                <p>
+                    Manage students, attendance records,
+                    reports, face recognition and system operations.
+                </p>
 
+                <a href="{{ url_for('login') }}"
+                   class="button admin-button">
+                    Admin Login
+                </a>
+
+            </div>
+
+
+            <!-- STUDENT -->
+            <div class="role-card">
+
+                <div class="role-icon">👨‍🎓</div>
+
+                <h2>Student</h2>
+
+                <p>
+                    Access your profile, attendance records
+                    and attendance summary.
+                </p>
+
+                <a href="{{ url_for('student_login') }}"
+                   class="button student-button">
+                    Student Login
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer">
+            Secure • Face Recognition • Attendance Management
         </div>
 
     </div>
 
-</div>
+
+    <script>
+
+        function toggleTheme() {
+
+            document.body.classList.toggle("dark");
+
+            const button = document.getElementById("themeButton");
+
+            if (document.body.classList.contains("dark")) {
+                button.innerHTML = "☀️ Light Mode";
+                localStorage.setItem("theme", "dark");
+            } else {
+                button.innerHTML = "🌙 Dark Mode";
+                localStorage.setItem("theme", "light");
+            }
+        }
+
+
+        /* Remember selected theme */
+
+        window.onload = function () {
+
+            const savedTheme = localStorage.getItem("theme");
+
+            if (savedTheme === "dark") {
+
+                document.body.classList.add("dark");
+
+                document.getElementById("themeButton").innerHTML =
+                    "☀️ Light Mode";
+            }
+        };
+
+    </script>
 
 </body>
-
 </html>

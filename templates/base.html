@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AttendX Vision{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+<div class="ax-app">
+    <aside class="ax-sidebar">
+        <div class="ax-brand">
+            <div class="ax-brand-kicker">ATTENDX VISION</div>
+            <div class="ax-brand-title">Admin Console</div>
+            <div class="ax-brand-sub">Face attendance management</div>
+        </div>
+
+        {% set ep = request.endpoint or '' %}
+        <nav class="ax-nav">
+<a class="ax-nav-link {% if ep == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span class="ax-nav-icon">⌂</span><span>Dashboard</span></a>            
+<a class="ax-nav-link {% if ep == 'attendance' %}active{% endif %}" href="{{ url_for('attendance') }}"><span class="ax-nav-icon">✓</span><span>Attendance</span></a>
+            <a class="ax-nav-link {% if ep == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}"><span class="ax-nav-icon">▤</span><span>Reports</span></a>
+<a
+    class="ax-nav-link {% if ep == 'home' %}active{% endif %}"
+    href="{{ url_for('home') }}"
+    onclick="window.location.replace(this.href); return false;"
+>
+    <span class="ax-nav-icon">◌</span>
+    <span>Home</span>
+</a>            <a href="{{ url_for('settings') }}"
+   style="
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       padding: 0 20px;
+       height: 48px;
+       box-sizing: border-box;
+       text-decoration: none;
+   ">
+    <span style="
+        width: 16px;
+        min-width: 16px;
+        text-align: center;
+    ">⚙</span>
+
+    <span>Settings</span>
+</a>     
+        </nav>
+
+        <div class="ax-sidebar-bottom">
+            <div class="ax-user-card">
+                <div class="ax-user-label">Signed in</div>
+                <div class="ax-user-name">{{ session.get('admin_username', 'Administrator') }}</div>
+                <a class="ax-logout" href="{{ url_for('logout') }}">Log out →</a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="ax-main-shell">
+        <header class="ax-topbar">
+            <div class="ax-topbar-inner">
+                <div>
+                    <div class="ax-page-kicker">Smart attendance platform</div>
+                    <div class="ax-page-title">{% block page_title %}Admin Console{% endblock %}</div>
+                    <div class="ax-page-sub">{% block page_subtitle %}Manage biometric attendance from one place.{% endblock %}</div>
+                </div>
+                {% block top_action %}{% endblock %}
+            </div>
+        </header>
+
+        <main class="ax-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="ax-alerts">
+                    {% for category, message in messages %}
+                        <div class="ax-alert {% if category == 'success' %}ax-alert-success{% else %}ax-alert-error{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% block scripts %}{% endblock %}
+<!-- Theme Toggle -->
+<button
+    id="themeToggle"
+    type="button"
+    aria-label="Toggle dark and light mode"
+    title="Toggle theme"
+    style="
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        width: 52px;
+        height: 52px;
+        border: 1px solid rgba(34,211,238,.25);
+        border-radius: 50%;
+        background: #081321;
+        color: #67e8f9;
+        font-size: 21px;
+        cursor: pointer;
+        z-index: 9999;
+        box-shadow: 0 10px 30px rgba(0,0,0,.25);
+        transition: .2s ease;
+    "
+>
+    ☀
+</button>
+
+<style>
+    body.light-mode {
+        background: #f4f7fb !important;
+        color: #172033 !important;
+    }
+
+    body.light-mode .sidebar,
+    body.light-mode aside {
+        background: #ffffff !important;
+        border-color: #dbe3ee !important;
+    }
+
+    body.light-mode main,
+    body.light-mode .page-shell,
+    body.light-mode .content,
+    body.light-mode .main-content {
+        background: #f4f7fb !important;
+        color: #172033 !important;
+    }
+
+    body.light-mode section,
+    body.light-mode article,
+    body.light-mode .panel,
+    body.light-mode .glass-panel,
+    body.light-mode .card,
+    body.light-mode .table-card {
+        background: #ffffff !important;
+        border-color: #dbe3ee !important;
+        color: #172033 !important;
+    }
+
+    body.light-mode h1,
+    body.light-mode h2,
+    body.light-mode h3,
+    body.light-mode h4,
+    body.light-mode p,
+    body.light-mode span,
+    body.light-mode label,
+    body.light-mode td,
+    body.light-mode th,
+    body.light-mode a {
+        color: #172033 !important;
+    }
+
+    body.light-mode input,
+    body.light-mode select,
+    body.light-mode textarea {
+        background: #ffffff !important;
+        color: #172033 !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    body.light-mode #themeToggle {
+        background: #ffffff !important;
+        color: #f59e0b !important;
+        border-color: #cbd5e1 !important;
+    }
+    /* Better light-mode readability */
+body.light-mode {
+    font-size: 15px !important;
+}
+
+body.light-mode .ax-panel {
+    background: #ffffff !important;
+    border: 1px solid #d9e2ec !important;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important;
+}
+
+body.light-mode .ax-panel-pad {
+    background: #ffffff !important;
+}
+
+body.light-mode .ax-section-title {
+    color: #172033 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+body.light-mode .ax-section-sub,
+body.light-mode .ax-kpi-foot,
+body.light-mode .ax-page-sub,
+body.light-mode .ax-brand-sub {
+    color: #607086 !important;
+    font-size: 13px !important;
+}
+
+body.light-mode .ax-kpi-label {
+    color: #526176 !important;
+    font-size: 12px !important;
+}
+
+body.light-mode .ax-kpi-value {
+    color: #111827 !important;
+    font-size: 28px !important;
+    font-weight: 800 !important;
+}
+
+body.light-mode .ax-nav-link {
+    color: #334155 !important;
+    font-size: 15px !important;
+}
+
+body.light-mode .ax-nav-link.active {
+    background: #e9f8fb !important;
+    color: #0f172a !important;
+    border-color: #bde8f0 !important;
+}
+
+body.light-mode .ax-topbar,
+body.light-mode .ax-sidebar {
+    background: #ffffff !important;
+}
+
+body.light-mode .ax-content,
+body.light-mode .ax-main-shell {
+    background: #f5f8fc !important;
+}
+
+/* Quick action cards */
+body.light-mode .ax-grid-4 > a.ax-panel {
+    background: #ffffff !important;
+    color: #172033 !important;
+}
+
+body.light-mode .ax-grid-4 > a.ax-panel:hover {
+    background: #f8fcff !important;
+    border-color: #9fdbe6 !important;
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+    (function () {
+        const toggle = document.getElementById("themeToggle");
+
+        const savedTheme =
+            localStorage.getItem("attendx-theme");
+
+        if (savedTheme === "light") {
+            document.body.classList.add("light-mode");
+            toggle.textContent = "☾";
+        }
+
+        toggle.addEventListener("click", function () {
+            document.body.classList.toggle("light-mode");
+
+            const lightMode =
+                document.body.classList.contains("light-mode");
+
+            localStorage.setItem(
+                "attendx-theme",
+                lightMode ? "light" : "dark"
+            );
+
+            toggle.textContent =
+                lightMode ? "☾" : "☀";
+        });
+    })();
+</script>
+<style>
+    /* Make all sidebar menu items bold */
+    nav a {
+        font-weight: 700 !important;
+    }
+
+    nav a span {
+        font-weight: 700 !important;
+    }
+</style>
+</body>
+</html>

@@ -1,306 +1,686 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Attendance Reports</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
-</head>
-
-
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-
-        <!-- Navigation -->
-
-        <nav>
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/register">
-                Register
-            </a>
-
-            <a href="/students">
-                Students
-            </a>
-
-            <a href="/attendance">
-                Attendance
-            </a>
-
-            <a href="/reports">
-                Reports
-            </a>
-
-        </nav>
-
-
-        <!-- Header -->
-
-        <h1>
-            Attendance Reports
-        </h1>
-
-        <p class="subtitle">
-            Analyze and export attendance records
-        </p>
-
-
-        <!-- Flash Messages -->
-
-        {% with messages =
-            get_flashed_messages(
-                with_categories=true
-            )
-        %}
-
-            {% for category, message in messages %}
-
-                <div class="message {{ category }}">
-                    {{ message }}
-                </div>
-
-            {% endfor %}
-
-        {% endwith %}
-
-
-        <!-- Filters -->
-
-        <form
-            method="GET"
-            action="/reports"
-            class="filter-form"
-        >
-
-            <div class="filter-group">
-
-                <label>
-                    Search Student
-                </label>
-
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Student ID or Name"
-                    value="{{ search }}"
-                >
-
-            </div>
-
-
-            <div class="filter-group">
-
-                <label>
-                    Attendance Date
-                </label>
-
-                <input
-                    type="date"
-                    name="date"
-                    value="{{ attendance_date }}"
-                >
-
-            </div>
-
-
-            <div class="filter-actions">
-
-                <button
-                    type="submit"
-                    class="button"
-                >
-                    Generate Report
-                </button>
-
-                <a
-                    href="/reports"
-                    class="button reset-button"
-                >
-                    Clear
-                </a>
-
-            </div>
-
-        </form>
-
-
-        <!-- Report Statistics -->
-
-        <div class="stats-grid">
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    {{ total_records }}
-                </div>
-
-                <div class="stat-label">
-                    Total Records
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    {{ present_count }}
-                </div>
-
-                <div class="stat-label">
-                    Present
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-        <!-- Export -->
-
-        <div class="report-actions">
-
-            <a
-                href="{{ url_for(
-                    'export_attendance',
-                    search=search,
-                    date=attendance_date
-                ) }}"
-                class="button success"
+{% extends "base.html" %}
+
+{% block title %}Reports | AttendX Vision{% endblock %}
+
+{% block page_title %}Reports{% endblock %}
+
+{% block page_subtitle %}
+Overall attendance eligibility and attendance analysis.
+{% endblock %}
+
+{% block top_action %}{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ==========================================
+   REPORTS PANEL
+   ========================================== */
+
+.reports-panel {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 28px 30px;
+}
+
+body:not(.light-mode) .reports-panel {
+    background: #111111;
+    border-color: #303030;
+}
+
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.reports-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 38px;
+}
+
+.reports-title {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    color: #252525;
+}
+
+body:not(.light-mode) .reports-title {
+    color: #f3f4f6;
+}
+
+.reports-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+
+/* ==========================================
+   SELECT
+   ========================================== */
+
+.semester-select {
+    height: 46px;
+    min-width: 176px;
+    padding: 0 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #222222;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+}
+
+body:not(.light-mode) .semester-select {
+    background: #151515;
+    color: #f5f5f5;
+    border-color: #3a3a3a;
+}
+
+
+/* ==========================================
+   EXPORT
+   ========================================== */
+
+.export-pdf-btn {
+    height: 46px;
+    padding: 0 17px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #222222;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.export-pdf-btn:hover {
+    background: #f3f4f6;
+}
+
+body:not(.light-mode) .export-pdf-btn {
+    background: #151515;
+    color: #f5f5f5;
+    border-color: #3a3a3a;
+}
+
+body:not(.light-mode) .export-pdf-btn:hover {
+    background: #222222;
+}
+
+
+/* ==========================================
+   STATISTICS
+   ========================================== */
+
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 44px;
+}
+
+.report-stat {
+    padding: 0 20px;
+}
+
+.report-stat-label {
+    margin: 0 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #737373;
+}
+
+body:not(.light-mode) .report-stat-label {
+    color: #a3a3a3;
+}
+
+.report-stat-value {
+    margin: 0;
+    font-size: 31px;
+    line-height: 1;
+    font-weight: 750;
+    color: #252525;
+}
+
+body:not(.light-mode) .report-stat-value {
+    color: #f3f4f6;
+}
+
+.report-stat-value.danger {
+    color: #ef6b73;
+}
+
+
+/* ==========================================
+   TABLE TITLE
+   ========================================== */
+
+.below-threshold-title {
+    margin: 0 0 18px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333333;
+}
+
+body:not(.light-mode) .below-threshold-title {
+    color: #eeeeee;
+}
+
+
+/* ==========================================
+   TABLE
+   ========================================== */
+
+.reports-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.reports-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+}
+
+.reports-table th {
+    padding: 0 8px 13px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    color: #737373;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+body:not(.light-mode) .reports-table th {
+    color: #a3a3a3;
+    border-bottom-color: #303030;
+}
+
+.reports-table td {
+    padding: 14px 8px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #333333;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+body:not(.light-mode) .reports-table td {
+    color: #e5e5e5;
+    border-bottom-color: #303030;
+}
+
+.reports-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.reports-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+body:not(.light-mode) .reports-table tbody tr:hover {
+    background: #181818;
+}
+
+
+/* ==========================================
+   STUDENT
+   ========================================== */
+
+.report-student-name {
+    font-weight: 650;
+    color: #252525;
+}
+
+body:not(.light-mode) .report-student-name {
+    color: #f1f1f1;
+}
+
+.report-roll {
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   STATUS
+   ========================================== */
+
+.report-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.status-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+body:not(.light-mode) .status-danger {
+    background: #450a0a;
+    color: #f87171;
+}
+
+.status-warning {
+    background: #fef3c7;
+    color: #b77900;
+}
+
+body:not(.light-mode) .status-warning {
+    background: #4a3000;
+    color: #f5b400;
+}
+
+.status-safe {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+body:not(.light-mode) .status-safe {
+    background: #063d17;
+    color: #22c55e;
+}
+
+
+/* ==========================================
+   EMPTY
+   ========================================== */
+
+.reports-empty {
+    text-align: center;
+    padding: 45px 20px;
+    color: #737373;
+    font-size: 14px;
+}
+
+body:not(.light-mode) .reports-empty {
+    color: #a3a3a3;
+}
+
+
+/* ==========================================
+   PRINT
+   ========================================== */
+
+@media print {
+
+    body {
+        background: #ffffff !important;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .reports-panel,
+    .reports-panel * {
+        visibility: visible;
+    }
+
+    .reports-panel {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none !important;
+        background: #ffffff !important;
+    }
+
+    .reports-actions {
+        display: none !important;
+    }
+
+    .report-stat-label,
+    .reports-table th {
+        color: #555555 !important;
+    }
+
+    .report-stat-value,
+    .reports-table td,
+    .reports-title,
+    .below-threshold-title {
+        color: #111111 !important;
+    }
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 750px) {
+
+    .reports-panel {
+        padding: 22px 18px;
+    }
+
+    .reports-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .reports-actions {
+        width: 100%;
+    }
+
+    .semester-select,
+    .export-pdf-btn {
+        flex: 1;
+    }
+
+    .report-stats {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .report-stat {
+        padding: 0 5px;
+    }
+}
+
+</style>
+
+
+<section class="reports-panel">
+
+
+    <!-- HEADER -->
+
+    <div class="reports-header">
+
+        <h2 class="reports-title">
+            Reports
+        </h2>
+
+
+        <div class="reports-actions">
+
+            <select
+                class="semester-select"
+                aria-label="Report period"
             >
-                Download CSV Report
-            </a>
+
+                <option>
+                    This semester
+                </option>
+
+                <option>
+                    This month
+                </option>
+
+                <option>
+                    This year
+                </option>
+
+                <option>
+                    All time
+                </option>
+
+            </select>
+
+
+            <button
+                type="button"
+                class="export-pdf-btn"
+                onclick="window.print()"
+            >
+
+                <span>▧</span>
+
+                <span>
+                    Export PDF
+                </span>
+
+            </button>
 
         </div>
-
-
-        <!-- Report Table -->
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>ID</th>
-
-                        <th>Student ID</th>
-
-                        <th>Name</th>
-
-                        <th>Date</th>
-
-                        <th>Time</th>
-
-                        <th>Status</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% if attendance %}
-
-                        {% for record in attendance %}
-
-                        <tr>
-
-                            <td>
-                                {{ record.id }}
-                            </td>
-
-                            <td>
-                                {{ record.student_id }}
-                            </td>
-
-                            <td>
-                                {{ record.name }}
-                            </td>
-
-                            <td>
-                                {{ record.attendance_date }}
-                            </td>
-
-                            <td>
-                                {{ record.attendance_time }}
-                            </td>
-
-                            <td>
-
-                                <span class="status-present">
-                                    {{ record.status }}
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    {% else %}
-
-                        <tr>
-
-                            <td
-                                colspan="6"
-                                class="no-records"
-                            >
-                                No attendance records found.
-                            </td>
-
-                        </tr>
-
-                    {% endif %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <a
-            href="/"
-            class="back-link"
-        >
-            ← Back to Home
-        </a>
-
 
     </div>
 
-</div>
 
-</body>
+    <!-- STATISTICS -->
 
-</html>
+    <div class="report-stats">
+
+
+        <!-- WORKING DAYS -->
+
+        <div class="report-stat">
+
+            <p class="report-stat-label">
+                Working days
+            </p>
+
+            <p class="report-stat-value">
+                {{ working_days }}
+            </p>
+
+        </div>
+
+
+        <!-- MINIMUM REQUIRED -->
+
+        <div class="report-stat">
+
+            <p class="report-stat-label">
+                Min required
+            </p>
+
+            <p class="report-stat-value">
+                75%
+            </p>
+
+        </div>
+
+
+        <!-- BELOW THRESHOLD -->
+
+        <div class="report-stat">
+
+            <p class="report-stat-label">
+                Below threshold
+            </p>
+
+            <p class="report-stat-value danger">
+                {{ below_threshold }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- STUDENT TABLE -->
+
+    <h3 class="below-threshold-title">
+        Student Attendance Report
+    </h3>
+
+
+    <div class="reports-table-wrapper">
+
+        <table class="reports-table">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Roll No
+                    </th>
+
+                    <th>
+                        Days Present
+                    </th>
+
+                    <th>
+                        Working Days
+                    </th>
+
+                    <th>
+                        Attendance
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% if attendance %}
+
+                    {% for student in attendance %}
+
+                    <tr>
+
+
+                        <!-- NAME -->
+
+                        <td>
+
+                            <span class="report-student-name">
+                                {{ student["name"] }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- ROLL -->
+
+                        <td>
+
+                            <span class="report-roll">
+                                {{ student["student_id"] }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- DAYS PRESENT -->
+
+                        <td>
+
+                            {{ student["days_present"] }}
+
+                        </td>
+
+
+                        <!-- WORKING DAYS -->
+
+                        <td>
+
+                            {{ student["working_days"] }}
+
+                        </td>
+
+
+                        <!-- ATTENDANCE -->
+
+                        <td>
+
+                            {{ student["attendance_percentage"] }}%
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+
+                            {% if student["status"] == "Good" %}
+
+                                <span
+                                    class="report-status status-safe"
+                                >
+                                    Good
+                                </span>
+
+
+                            {% elif student["status"] == "Warning" %}
+
+                                <span
+                                    class="report-status status-warning"
+                                >
+                                    Warning
+                                </span>
+
+
+                            {% else %}
+
+                                <span
+                                    class="report-status status-danger"
+                                >
+                                    At risk
+                                </span>
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            <div class="reports-empty">
+
+                                No registered students found.
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}

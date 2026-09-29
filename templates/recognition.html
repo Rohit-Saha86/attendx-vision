@@ -2,43 +2,664 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Face Recognition | Attendance</title>
+    <title>AttendX Vision | Face Recognition</title>
 
-    <!-- Tailwind for rapid UI prototyping -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/recognition.css') }}"
     >
+
+    <!-- Layout redesign overrides -->
+    <style>
+        :root {
+            --ax-bg: #050b16;
+            --ax-panel: rgba(10, 20, 35, 0.78);
+            --ax-panel-strong: rgba(8, 17, 30, 0.94);
+            --ax-border: rgba(148, 163, 184, 0.16);
+            --ax-cyan: #22d3ee;
+            --ax-green: #34d399;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(14, 116, 144, 0.14), transparent 34%),
+                radial-gradient(circle at 8% 80%, rgba(37, 99, 235, 0.08), transparent 30%),
+                var(--ax-bg) !important;
+            color: white;
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        .ax-header {
+            position: sticky;
+            top: 0;
+            z-index: 80;
+            border-bottom: 1px solid var(--ax-border);
+            background: rgba(5, 11, 22, 0.78);
+            backdrop-filter: blur(18px);
+        }
+
+        .ax-header-inner {
+            min-height: 72px;
+        }
+
+        .ax-brand-kicker {
+            color: var(--ax-cyan);
+            letter-spacing: 0.28em;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .ax-brand-title {
+            font-size: 17px;
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .ax-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ax-header .toggle {
+            font-size: 12px;
+        }
+
+        .ax-header .status-pill {
+            font-size: 10px;
+        }
+
+        .ax-main {
+            width: min(1320px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 20px 0 24px;
+        }
+
+        .camera-terminal {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--ax-border);
+            background: linear-gradient(145deg, rgba(15, 27, 46, 0.92), rgba(5, 13, 25, 0.92));
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.36),
+                inset 0 1px 0 rgba(255, 255, 255, 0.025);
+            border-radius: 30px;
+            padding: 18px;
+        }
+
+        .camera-terminal::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(34, 211, 238, 0.03), transparent 22%);
+        }
+
+        .camera-heading {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .camera-heading-kicker {
+            color: #94a3b8;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.24em;
+        }
+
+        .camera-heading-title {
+            margin-top: 5px;
+            font-size: clamp(20px, 2vw, 28px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .camera-heading-meta {
+            text-align: right;
+        }
+
+        .camera-heading-meta-label {
+            color: #64748b;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+        }
+
+        .camera-heading-meta-value {
+            margin-top: 4px;
+            color: #6ee7b7;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        #scanner {
+            height: min(68vh, 720px) !important;
+            min-height: 0 !important;
+            max-height: calc(100vh - 190px);
+            aspect-ratio: 16 / 9;
+            border-radius: 24px !important;
+            border: 1px solid rgba(34, 211, 238, 0.16);
+            box-shadow:
+                inset 0 0 70px rgba(34, 211, 238, 0.035),
+                0 0 0 1px rgba(255, 255, 255, 0.018);
+            overflow: hidden;
+        }
+
+        .camera-control-bar {
+            position: relative;
+            z-index: 5;
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 14px !important;
+            padding: 9px 10px;
+            border: 1px solid var(--ax-border);
+            border-radius: 16px;
+            background: rgba(2, 8, 18, 0.72);
+            backdrop-filter: blur(14px);
+        }
+
+        .camera-control-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ax-side-drawer {
+            position: fixed;
+            top: 72px;
+            right: 0;
+            z-index: 90;
+            width: min(380px, 92vw);
+            height: calc(100vh - 72px);
+            padding: 18px;
+            overflow-y: auto;
+            background: var(--ax-panel-strong);
+            border-left: 1px solid var(--ax-border);
+            box-shadow: -25px 0 80px rgba(0, 0, 0, 0.38);
+            backdrop-filter: blur(22px);
+            transform: translateX(105%);
+            transition: transform 0.3s ease;
+        }
+
+        body.info-open .ax-side-drawer {
+            transform: translateX(0);
+        }
+
+        .ax-drawer-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .ax-drawer-kicker {
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        .ax-drawer-title {
+            margin-top: 3px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .ax-drawer-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--ax-border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.045);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .ax-drawer-close:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ax-drawer-stack {
+            display: grid;
+            gap: 14px;
+        }
+
+        .ax-drawer-card {
+            border-radius: 20px !important;
+        }
+
+        .ax-info-backdrop {
+            position: fixed;
+            inset: 72px 0 0 0;
+            z-index: 85;
+            background: rgba(0, 0, 0, 0.38);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        body.info-open .ax-info-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .recognition-overlay {
+            z-index: 40 !important;
+        }
+
+        #multiScanToggle,
+        #infoToggle {
+            min-height: 38px;
+        }
+
+        #infoToggle {
+            padding: 8px 14px;
+        }
+
+        @media (max-width: 900px) {
+            .ax-main {
+                width: min(100% - 18px, 900px);
+                padding-top: 10px;
+            }
+
+            .camera-terminal {
+                border-radius: 22px;
+                padding: 14px;
+            }
+
+            #scanner {
+                height: 68vh !important;
+                max-height: none;
+                aspect-ratio: auto;
+            }
+
+            .camera-heading-meta {
+                display: none;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .ax-header-inner {
+                min-height: 64px;
+            }
+
+            .ax-brand-title {
+                font-size: 15px;
+            }
+
+            .ax-header-actions {
+                gap: 5px;
+            }
+
+            #systemStatus {
+                display: none;
+            }
+
+            .camera-heading {
+                align-items: flex-start;
+            }
+
+            #scanner {
+                height: 58vh !important;
+                max-height: none;
+                aspect-ratio: auto;
+                border-radius: 18px !important;
+            }
+
+            .camera-control-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .camera-control-left {
+                width: 100%;
+            }
+        }
+    
+
+        /* =========================================
+           FULL-SCREEN CAMERA MODE
+           ========================================= */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            position: relative;
+        }
+
+        .ax-header {
+            position: fixed !important;
+            inset: 0 0 auto 0;
+            z-index: 80;
+            min-height: 72px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+            background: linear-gradient(
+                180deg,
+                rgba(3, 8, 18, 0.88),
+                rgba(3, 8, 18, 0.28),
+                transparent
+            );
+            backdrop-filter: blur(10px);
+        }
+
+        .ax-main {
+            width: 100vw !important;
+            height: 100vh;
+            margin: 0 !important;
+            padding: 0 !important;
+            position: relative;
+        }
+
+        .camera-terminal {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: #020711;
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        .camera-terminal::before {
+            z-index: 2;
+        }
+
+        .camera-heading {
+            position: absolute;
+            top: 88px;
+            left: 32px;
+            right: 32px;
+            z-index: 20;
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .camera-heading-title {
+            font-size: clamp(24px, 2.4vw, 38px);
+            text-shadow: 0 4px 25px rgba(0, 0, 0, 0.45);
+        }
+
+        .camera-heading-kicker,
+        .camera-heading-meta-label {
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+        }
+
+
+        #scanner {
+            position: absolute !important;
+            inset: 0;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100% !important;
+            max-height: none !important;
+            aspect-ratio: auto !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        #webcam,
+        #faceMeshCanvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        #faceMeshCanvas {
+            position: absolute !important;
+            inset: 0;
+        }
+
+        .camera-control-bar {
+            position: fixed !important;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 60;
+            width: auto;
+            min-width: min(420px, calc(100vw - 32px));
+            margin: 0 !important;
+            padding: 10px 12px;
+            border-radius: 18px;
+            background: rgba(2, 8, 18, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(16px);
+        }
+
+        .recognition-overlay {
+            bottom: 88px !important;
+        }
+
+        .scanner-message {
+            bottom: 84px !important;
+        }
+
+        .ax-info-backdrop {
+            inset: 0;
+            z-index: 85;
+        }
+
+        .ax-side-drawer {
+            top: 0;
+            height: 100vh;
+            z-index: 90;
+            padding-top: 88px;
+        }
+
+        @media (max-width: 700px) {
+            .camera-heading {
+                top: 76px;
+                left: 18px;
+                right: 18px;
+            }
+
+            .camera-heading-meta {
+                display: none;
+            }
+
+            .camera-control-bar {
+                bottom: 14px;
+                min-width: min(360px, calc(100vw - 24px));
+            }
+
+            .recognition-overlay {
+                left: 50% !important;
+                width: min(92vw, 360px);
+                min-width: 0;
+                bottom: 82px !important;
+            }
+
+            .scanner-message {
+                bottom: 76px !important;
+            }
+        }
+
+        /* ==========================================
+   BIG YOU ARE PRESENT POPUP
+   ========================================== */
+
+.recognition-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 24px;
+
+    background: rgba(2, 8, 18, 0.38);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    z-index: 70 !important;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: none !important;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.recognition-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.recognition-overlay-card {
+    width: min(560px, 90vw);
+
+    padding: 42px 36px;
+
+    text-align: center;
+
+    border: 1px solid rgba(52, 211, 153, 0.45);
+    border-radius: 28px;
+
+    background: rgba(3, 12, 25, 0.94);
+
+    box-shadow:
+        0 0 80px rgba(52, 211, 153, 0.18),
+        0 30px 100px rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    animation: presentPopupIn 0.45s ease-out;
+}
+
+.recognition-overlay-check {
+    width: 92px;
+    height: 92px;
+
+    margin: 0 auto 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 3px solid #34d399;
+    border-radius: 50%;
+
+    color: #34d399;
+
+    font-size: 48px;
+    font-weight: 800;
+
+    background: rgba(52, 211, 153, 0.10);
+
+    box-shadow:
+        0 0 35px rgba(52, 211, 153, 0.35);
+}
+
+.recognition-overlay-title {
+    margin: 0;
+
+    color: #34d399;
+
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+}
+
+.recognition-overlay-name {
+    margin: 12px 0 0;
+
+    color: white;
+
+    font-size: clamp(20px, 2.5vw, 28px);
+    font-weight: 700;
+}
+
+.recognition-overlay-status {
+    margin: 10px 0 0;
+
+    color: #a7f3d0;
+
+    font-size: 15px;
+}
+
+@keyframes presentPopupIn {
+    from {
+        opacity: 0;
+        transform: scale(0.88);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+ 
+    </style>
 </head>
 
 <body class="min-h-screen bg-slate-950 text-white">
 
-    <!-- Ambient background -->
     <div class="ambient ambient-one"></div>
     <div class="ambient ambient-two"></div>
 
     <!-- Header -->
-    <header class="relative z-20 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <header class="ax-header">
+        <div class="ax-header-inner mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
 
             <div>
-                <p class="text-xs uppercase tracking-[0.35em] text-cyan-400">
-                    Smart Attendance
-                </p>
-
-                <h1 class="mt-1 text-xl font-bold">
-                    Face Recognition Terminal
-                </h1>
+                <p class="ax-brand-kicker">ATTENDX VISION</p>
+                <h1 class="ax-brand-title">Face Attendance Terminal</h1>
+                <p class="mt-1 text-[11px] text-slate-500">Secure biometric check-in</p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="ax-header-actions">
 
                 <span
                     id="systemStatus"
@@ -57,8 +678,16 @@
                     <span class="toggle-track">
                         <span class="toggle-thumb"></span>
                     </span>
-
                     <span>Multi Scan</span>
+                </button>
+
+                <button
+                    id="infoToggle"
+                    class="toggle"
+                    type="button"
+                    aria-expanded="false"
+                >
+                    <span>Info</span>
                 </button>
 
             </div>
@@ -66,37 +695,31 @@
     </header>
 
 
-    <!-- Main layout -->
-    <main class="relative z-10 mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <!-- Main camera experience -->
+    <main class="ax-main relative z-10">
 
-        <!-- LEFT: CAMERA -->
-        <section class="glass-panel">
+        <section class="camera-terminal">
 
-            <div class="mb-5 flex items-center justify-between">
-
+            <div class="camera-heading">
                 <div>
-                    <p class="text-xs uppercase tracking-widest text-slate-400">
-                        Biometric Scanner
-                    </p>
-
+                    <p class="camera-heading-kicker">Biometric Scanner</p>
                     <h2
                         id="scanTitle"
-                        class="mt-1 text-2xl font-semibold"
+                        class="camera-heading-title"
                     >
                         Align your face
                     </h2>
                 </div>
 
-                <div class="text-right">
-                    <p class="text-xs text-slate-500">
-                        LOCAL PROCESSING
-                    </p>
-
-                    <p class="mt-1 text-sm text-emerald-400">
-                        ● ZERO CLOUD
-                    </p>
+                <div class="camera-heading-meta">
+                    <p class="camera-heading-meta-label">Local processing</p>
+                    <p class="camera-heading-meta-value">● ZERO CLOUD</p>
                 </div>
+            </div>
 
+            <div class="mb-3 flex items-center justify-between gap-3 text-[11px] text-slate-500">
+                <span>Face alignment + liveness verification</span>
+                <span class="text-emerald-400">● PRIVATE SESSION</span>
             </div>
 
 
@@ -121,7 +744,6 @@
 
                 <!-- HUD -->
                 <div class="hud-layer">
-
                     <div class="corner corner-tl"></div>
                     <div class="corner corner-tr"></div>
                     <div class="corner corner-bl"></div>
@@ -143,7 +765,6 @@
                     >
                         ✓
                     </div>
-
                 </div>
 
 
@@ -156,21 +777,47 @@
                     Searching for face...
                 </div>
 
+
+                <!-- Big attendance confirmation -->
+                <div
+                    id="recognitionOverlay"
+                    class="recognition-overlay"
+                >
+                    <div class="recognition-overlay-card">
+
+                        <div class="recognition-overlay-check">
+                            ✓
+                        </div>
+
+                        <p class="recognition-overlay-title">
+                            YOU ARE PRESENT
+                        </p>
+
+                        <p
+                            id="recognitionOverlayName"
+                            class="recognition-overlay-name"
+                        >
+                            Welcome, Test Student
+                        </p>
+
+                        <p
+                            id="recognitionOverlayStatus"
+                            class="recognition-overlay-status"
+                        >
+                            Attendance marked successfully
+                        </p>
+
+                    </div>
+                </div>
+
             </div>
 
 
-            <!-- Camera controls -->
-            <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
+            <!-- Controls -->
+            <div class="camera-control-bar">
 
-                <div class="flex items-center gap-3">
-
-                    <button
-                        id="startCamera"
-                        class="action-button action-primary"
-                        type="button"
-                    >
-                        Start Scanner
-                    </button>
+                <div class="camera-control-left">
+                    
 
                     <button
                         id="stopCamera"
@@ -179,7 +826,6 @@
                     >
                         Stop
                     </button>
-
                 </div>
 
                 <div
@@ -193,14 +839,43 @@
             </div>
 
         </section>
+    </main>
 
 
-        <!-- RIGHT: INFORMATION -->
-        <aside class="space-y-6">
+    <!-- Info backdrop -->
+    <div
+        id="infoBackdrop"
+        class="ax-info-backdrop"
+    ></div>
+
+
+    <!-- Info drawer -->
+    <aside
+        id="infoDrawer"
+        class="ax-side-drawer"
+        aria-hidden="true"
+    >
+
+        <div class="ax-drawer-head">
+            <div>
+                <p class="ax-drawer-kicker">Scanner Information</p>
+                <h2 class="ax-drawer-title">Session details</h2>
+            </div>
+
+            <button
+                id="infoClose"
+                class="ax-drawer-close"
+                type="button"
+                aria-label="Close information"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="ax-drawer-stack">
 
             <!-- Greeting -->
-            <section class="glass-panel">
-
+            <section class="glass-panel ax-drawer-card">
                 <p
                     id="greetingTime"
                     class="text-sm text-cyan-400"
@@ -212,7 +887,7 @@
                     id="greetingText"
                     class="mt-2 text-2xl font-bold"
                 >
-                    Ready for attendance?
+                    Ready for your check-in?
                 </h2>
 
                 <p
@@ -221,19 +896,15 @@
                 >
                     Look into the camera and complete the liveness action.
                 </p>
-
             </section>
 
 
             <!-- Success card -->
             <section
                 id="successCard"
-                class="success-card hidden"
+                class="success-card hidden ax-drawer-card"
             >
-
-                <div class="success-icon">
-                    ✓
-                </div>
+                <div class="success-icon">✓</div>
 
                 <p class="mt-4 text-sm text-emerald-300">
                     ATTENDANCE CONFIRMED
@@ -253,10 +924,7 @@
                     Marked On-Time
                 </p>
 
-
-                <!-- Counter -->
                 <div class="counter-box">
-
                     <p class="text-xs uppercase tracking-widest text-slate-500">
                         Attendance Count
                     </p>
@@ -267,13 +935,9 @@
                     >
                         0
                     </p>
-
                 </div>
 
-
-                <!-- Streak -->
                 <div class="streak-badge">
-
                     <span class="streak-flame">🔥</span>
 
                     <div>
@@ -288,21 +952,16 @@
                             1 day
                         </p>
                     </div>
-
                 </div>
-
             </section>
 
 
             <!-- Failure card -->
             <section
                 id="failureCard"
-                class="failure-card hidden"
+                class="failure-card hidden ax-drawer-card"
             >
-
-                <div class="failure-icon">
-                    !
-                </div>
+                <div class="failure-icon">!</div>
 
                 <div>
                     <h3 class="font-semibold">
@@ -324,15 +983,12 @@
                 >
                     Retry
                 </button>
-
             </section>
 
 
-            <!-- Rapid scan log -->
-            <section class="glass-panel">
-
+            <!-- Scan queue -->
+            <section class="glass-panel ax-drawer-card">
                 <div class="flex items-center justify-between">
-
                     <div>
                         <p class="text-xs uppercase tracking-widest text-slate-500">
                             Recent scans
@@ -349,9 +1005,7 @@
                     >
                         0
                     </span>
-
                 </div>
-
 
                 <div
                     id="scanQueue"
@@ -361,18 +1015,15 @@
                         No scans yet.
                     </p>
                 </div>
-
             </section>
 
 
             <!-- Security -->
             <section
                 id="securityPanel"
-                class="glass-panel"
+                class="glass-panel ax-drawer-card"
             >
-
                 <div class="flex items-center justify-between">
-
                     <div>
                         <p class="text-xs uppercase tracking-widest text-red-400">
                             Security
@@ -389,7 +1040,6 @@
                     >
                         0
                     </span>
-
                 </div>
 
                 <div
@@ -398,12 +1048,10 @@
                 >
                     No flagged attempts.
                 </div>
-
             </section>
 
-        </aside>
-
-    </main>
+        </div>
+    </aside>
 
 
     <!-- Low-light overlay -->
@@ -418,9 +1066,69 @@
     </div>
 
 
-    <script type="module"
-        src="{{ url_for('static', filename='js/recognition.js') }}">
+    <!-- Info drawer logic -->
+    <script>
+        (function () {
+            const infoToggle = document.getElementById("infoToggle");
+            const infoClose = document.getElementById("infoClose");
+            const infoBackdrop = document.getElementById("infoBackdrop");
+            const infoDrawer = document.getElementById("infoDrawer");
+
+            function setInfoOpen(isOpen) {
+                document.body.classList.toggle("info-open", isOpen);
+
+                if (infoToggle) {
+                    infoToggle.setAttribute(
+                        "aria-expanded",
+                        String(isOpen)
+                    );
+                }
+
+                if (infoDrawer) {
+                    infoDrawer.setAttribute(
+                        "aria-hidden",
+                        String(!isOpen)
+                    );
+                }
+            }
+
+            if (infoToggle) {
+                infoToggle.addEventListener("click", function () {
+                    const isOpen =
+                        document.body.classList.contains("info-open");
+
+                    setInfoOpen(!isOpen);
+                });
+            }
+
+            if (infoClose) {
+                infoClose.addEventListener("click", function () {
+                    setInfoOpen(false);
+                });
+            }
+
+            if (infoBackdrop) {
+                infoBackdrop.addEventListener("click", function () {
+                    setInfoOpen(false);
+                });
+            }
+
+            document.addEventListener("keydown", function (event) {
+                if (
+                    event.key === "Escape" &&
+                    document.body.classList.contains("info-open")
+                ) {
+                    setInfoOpen(false);
+                }
+            });
+        })();
     </script>
+
+
+    <script
+        type="module"
+        src="{{ url_for('static', filename='js/recognition.js') }}?v=3"
+    ></script>
 
 </body>
 </html>
